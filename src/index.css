@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import 'leaflet/dist/leaflet.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: Inter, system-ui, sans-serif;
+  }
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-navy-600 hover:bg-navy-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  .btn-danger {
+    @apply bg-danger-600 hover:bg-danger-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  .btn-warning {
+    @apply bg-warning-500 hover:bg-warning-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  .btn-safe {
+    @apply bg-safe-600 hover:bg-safe-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
+  }
+  .metric-card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4;
+  }
+  .alert-critical { @apply bg-danger-50 border border-danger-200 text-danger-800; }
+  .alert-high { @apply bg-warning-50 border border-warning-200 text-warning-800; }
+  .alert-medium { @apply bg-yellow-50 border border-yellow-200 text-yellow-800; }
+  .alert-low { @apply bg-safe-50 border border-safe-200 text-safe-800; }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background-color: #f3f4f6; }
+::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background-color: #9ca3af; }
+
+/* Leaflet */
+.leaflet-container { height: 100%; width: 100%; border-radius: 0.75rem; }
+.leaflet-popup-content { font-size: 0.875rem; line-height: 1.25rem; }
+.leaflet-popup-content-wrapper {
+  border: 0;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+}
+
+/* Risk badges (fallback if not using utilities) */
+.risk-critical { background-color: #dc2626; }
+.risk-high { background-color: #f59e0b; }
+.risk-medium { background-color: #facc15; }
+.risk-low { background-color: #22c55e; }
+
+.loading-pulse { animation: loading-pulse 1.5s ease-in-out infinite; }
+@keyframes loading-pulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

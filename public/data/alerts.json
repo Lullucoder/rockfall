@@ -1,0 +1,171 @@
+{
+  "alerts": [
+    {
+      "id": "ALERT-001",
+      "zone_id": "ZONE-002",
+      "zone_name": "East Wall Section A",
+      "timestamp": "2025-09-09T09:45:00Z",
+      "severity": "critical",
+      "status": "active",
+      "type": "displacement_threshold",
+      "message": "Critical displacement rate detected: 14.8mm in 24 hours exceeds safety threshold of 10mm",
+      "recommended_actions": [
+        "Immediate evacuation of personnel from Zone 002",
+        "Deploy emergency monitoring equipment",
+        "Implement stabilization measures",
+        "Contact emergency response team"
+      ],
+      "risk_probability": 0.91,
+      "auto_generated": true,
+      "acknowledged": false,
+      "acknowledged_by": null,
+      "acknowledged_at": null
+    },
+    {
+      "id": "ALERT-002",
+      "zone_id": "ZONE-001",
+      "zone_name": "North Bench Level 1",
+      "timestamp": "2025-09-09T08:30:00Z",
+      "severity": "high",
+      "status": "active",
+      "type": "pore_pressure_increase",
+      "message": "Significant pore pressure increase detected: 49.2 kPa, 40% above baseline",
+      "recommended_actions": [
+        "Increase monitoring frequency to every 15 minutes",
+        "Restrict heavy equipment access",
+        "Review drainage systems",
+        "Prepare evacuation procedures"
+      ],
+      "risk_probability": 0.82,
+      "auto_generated": true,
+      "acknowledged": true,
+      "acknowledged_by": "John Smith",
+      "acknowledged_at": "2025-09-09T08:35:00Z"
+    },
+    {
+      "id": "ALERT-003",
+      "zone_id": "ZONE-006",
+      "zone_name": "North Haul Road",
+      "timestamp": "2025-09-09T07:15:00Z",
+      "severity": "high",
+      "status": "investigating",
+      "type": "rainfall_correlation",
+      "message": "Heavy rainfall correlation with increased displacement patterns detected",
+      "recommended_actions": [
+        "Implement rainfall monitoring protocol",
+        "Reduce vehicle speeds on haul road",
+        "Deploy additional sensors",
+        "Schedule geological assessment"
+      ],
+      "risk_probability": 0.78,
+      "auto_generated": true,
+      "acknowledged": true,
+      "acknowledged_by": "Sarah Johnson",
+      "acknowledged_at": "2025-09-09T07:20:00Z"
+    },
+    {
+      "id": "ALERT-004",
+      "zone_id": "ZONE-001",
+      "zone_name": "North Bench Level 1",
+      "timestamp": "2025-09-08T16:20:00Z",
+      "severity": "medium",
+      "status": "resolved",
+      "type": "sensor_anomaly",
+      "message": "Strain gauge sensor STRAIN-001 showing irregular readings",
+      "recommended_actions": [
+        "Calibrate sensor equipment",
+        "Deploy backup monitoring",
+        "Schedule maintenance check",
+        "Verify with manual measurements"
+      ],
+      "risk_probability": 0.45,
+      "auto_generated": false,
+      "acknowledged": true,
+      "acknowledged_by": "Mike Davis",
+      "acknowledged_at": "2025-09-08T16:25:00Z"
+    },
+    {
+      "id": "ALERT-005",
+      "zone_id": "ZONE-003",
+      "zone_name": "South Bench Level 2",
+      "timestamp": "2025-09-08T11:45:00Z",
+      "severity": "low",
+      "status": "monitoring",
+      "type": "routine_inspection",
+      "message": "Routine inspection due: Last inspection completed 48 hours ago",
+      "recommended_actions": [
+        "Schedule visual inspection",
+        "Review sensor data trends",
+        "Update geological reports",
+        "Verify safety protocols"
+      ],
+      "risk_probability": 0.28,
+      "auto_generated": true,
+      "acknowledged": true,
+      "acknowledged_by": "Lisa Wong",
+      "acknowledged_at": "2025-09-08T12:00:00Z"
+    },
+    {
+      "id": "ALERT-006",
+      "zone_id": "ZONE-005",
+      "zone_name": "Central Processing Area",
+      "timestamp": "2025-09-07T14:30:00Z",
+      "severity": "medium",
+      "status": "resolved",
+      "type": "vibration_detection",
+      "message": "Increased vibration levels from processing equipment affecting slope stability",
+      "recommended_actions": [
+        "Adjust processing equipment settings",
+        "Install vibration dampeners",
+        "Monitor displacement sensors",
+        "Review operational procedures"
+      ],
+      "risk_probability": 0.52,
+      "auto_generated": false,
+      "acknowledged": true,
+      "acknowledged_by": "Robert Chen",
+      "acknowledged_at": "2025-09-07T14:35:00Z"
+    }
+  ],
+  "alert_statistics": {
+    "total_alerts": 6,
+    "active_alerts": 2,
+    "critical_alerts": 1,
+    "high_priority_alerts": 2,
+    "medium_priority_alerts": 2,
+    "low_priority_alerts": 1,
+    "acknowledged_alerts": 5,
+    "auto_generated_alerts": 4,
+    "manual_alerts": 2,
+    "average_response_time_minutes": 12.5,
+    "alerts_last_24h": 3,
+    "alerts_last_7d": 6
+  },
+  "notification_settings": {
+    "email_notifications": true,
+    "sms_notifications": true,
+    "push_notifications": true,
+    "escalation_time_minutes": 30,
+    "critical_immediate_notify": true,
+    "notification_recipients": [
+      {
+        "name": "Emergency Response Team",
+        "email": "emergency@minesite.com",
+        "phone": "+1-555-0123",
+        "role": "emergency"
+      },
+      {
+        "name": "Site Manager",
+        "email": "manager@minesite.com",
+        "phone": "+1-555-0124",
+        "role": "management"
+      },
+      {
+        "name": "Geotechnical Engineer",
+        "email": "geotech@minesite.com",
+        "phone": "+1-555-0125",
+        "role": "technical"
+      }
+    ]
+  }
+}

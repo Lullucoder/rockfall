@@ -1,0 +1,179 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "zone_001",
+      "properties": {
+        "zone_id": "ZONE-001",
+        "name": "North Bench Level 1",
+        "risk_level": "high",
+        "risk_score": 8.2,
+        "slope_angle": 65,
+        "rock_type": "Limestone",
+        "last_inspection": "2025-09-08T10:30:00Z",
+        "stability_index": 0.65,
+        "displacement_rate": 2.4,
+        "pore_pressure": 45.2,
+        "rainfall_7d": 23.5,
+        "alert_count": 3,
+        "status": "monitoring"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [77.1025, 28.7041],
+          [77.1035, 28.7041],
+          [77.1035, 28.7051],
+          [77.1025, 28.7051],
+          [77.1025, 28.7041]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "zone_002",
+      "properties": {
+        "zone_id": "ZONE-002",
+        "name": "East Wall Section A",
+        "risk_level": "critical",
+        "risk_score": 9.1,
+        "slope_angle": 72,
+        "rock_type": "Shale",
+        "last_inspection": "2025-09-09T08:15:00Z",
+        "stability_index": 0.45,
+        "displacement_rate": 4.8,
+        "pore_pressure": 62.3,
+        "rainfall_7d": 31.2,
+        "alert_count": 7,
+        "status": "critical"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [77.1045, 28.7041],
+          [77.1055, 28.7041],
+          [77.1055, 28.7051],
+          [77.1045, 28.7051],
+          [77.1045, 28.7041]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "zone_003",
+      "properties": {
+        "zone_id": "ZONE-003",
+        "name": "South Bench Level 2",
+        "risk_level": "medium",
+        "risk_score": 5.7,
+        "slope_angle": 58,
+        "rock_type": "Sandstone",
+        "last_inspection": "2025-09-07T14:20:00Z",
+        "stability_index": 0.78,
+        "displacement_rate": 1.2,
+        "pore_pressure": 28.9,
+        "rainfall_7d": 15.3,
+        "alert_count": 1,
+        "status": "stable"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [77.1065, 28.7041],
+          [77.1075, 28.7041],
+          [77.1075, 28.7051],
+          [77.1065, 28.7051],
+          [77.1065, 28.7041]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "zone_004",
+      "properties": {
+        "zone_id": "ZONE-004",
+        "name": "West Wall Section B",
+        "risk_level": "low",
+        "risk_score": 3.2,
+        "slope_angle": 45,
+        "rock_type": "Granite",
+        "last_inspection": "2025-09-06T11:45:00Z",
+        "stability_index": 0.89,
+        "displacement_rate": 0.3,
+        "pore_pressure": 18.4,
+        "rainfall_7d": 8.7,
+        "alert_count": 0,
+        "status": "stable"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [77.1085, 28.7041],
+          [77.1095, 28.7041],
+          [77.1095, 28.7051],
+          [77.1085, 28.7051],
+          [77.1085, 28.7041]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "zone_005",
+      "properties": {
+        "zone_id": "ZONE-005",
+        "name": "Central Processing Area",
+        "risk_level": "medium",
+        "risk_score": 6.3,
+        "slope_angle": 62,
+        "rock_type": "Mixed Sedimentary",
+        "last_inspection": "2025-09-08T16:00:00Z",
+        "stability_index": 0.72,
+        "displacement_rate": 1.8,
+        "pore_pressure": 34.7,
+        "rainfall_7d": 19.8,
+        "alert_count": 2,
+        "status": "monitoring"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [77.1025, 28.7061],
+          [77.1035, 28.7061],
+          [77.1035, 28.7071],
+          [77.1025, 28.7071],
+          [77.1025, 28.7061]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "zone_006",
+      "properties": {
+        "zone_id": "ZONE-006",
+        "name": "North Haul Road",
+        "risk_level": "high",
+        "risk_score": 7.8,
+        "slope_angle": 68,
+        "rock_type": "Weathered Limestone",
+        "last_inspection": "2025-09-09T09:30:00Z",
+        "stability_index": 0.58,
+        "displacement_rate": 3.1,
+        "pore_pressure": 48.6,
+        "rainfall_7d": 27.4,
+        "alert_count": 4,
+        "status": "monitoring"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [77.1045, 28.7061],
+          [77.1055, 28.7061],
+          [77.1055, 28.7071],
+          [77.1045, 28.7071],
+          [77.1045, 28.7061]
+        ]]
+      }
+    }
+  ]
+}
