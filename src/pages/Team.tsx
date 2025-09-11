@@ -8,7 +8,7 @@ export const Team: React.FC = () => {
       name: 'Amit Agarwal',
       role: 'Team Lead & AI Specialist',
       bio: '2nd year Btech CSE student at KLU, passionate about AI and its applications in real-world problems.',
-      image: 'amit.png',
+      image: 'https://lh3.googleusercontent.com/pw/AP1GczPwIDgrDOfjjLqa-YyZp3t9Z_8R5D44eL9TWf1Tmi_PjvHYTJ3VEAXrV8b5GXaWnFNFJck72M9eqL_rqjcVJlTQdLq1faVq_1LjtAeUF52ZvhenRaH_bGf2mmpU1mHVdkRxll3iToprA_4O1zJm6UVszg=w969-h967-s-no-gm',
       expertise: ['Machine Learning', 'Geological Modeling', 'Risk Assessment'],
       education: 'Bteech Computer Science, KLU',
       github: 'amanagarwal0602',
