@@ -32,10 +32,5 @@
     "env": {
       "VITE_GEMINI_API_KEY": "@vite_gemini_api_key"
     }
-  },
-  "functions": {
-    "app/api/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
   }
 }
