@@ -24,13 +24,5 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "env": {
-    "VITE_GEMINI_API_KEY": "@vite_gemini_api_key"
-  },
-  "build": {
-    "env": {
-      "VITE_GEMINI_API_KEY": "@vite_gemini_api_key"
-    }
-  }
+  ]
 }
