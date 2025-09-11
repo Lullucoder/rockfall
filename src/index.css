@@ -48,6 +48,60 @@
 ::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 9999px; }
 ::-webkit-scrollbar-thumb:hover { background-color: #9ca3af; }
 
+/* Mobile optimizations */
+@layer utilities {
+  .mobile-safe-area {
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+  }
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  .card {
+    @apply p-4;
+  }
+  
+  .metric-card {
+    @apply p-3;
+  }
+  
+  /* Improve touch targets for mobile */
+  button, a, input, select, textarea {
+    min-height: 44px;
+  }
+  
+  /* Better mobile typography */
+  h1 { font-size: 1.75rem; line-height: 1.2; }
+  h2 { font-size: 1.5rem; line-height: 1.3; }
+  h3 { font-size: 1.25rem; line-height: 1.4; }
+  
+  /* Mobile-friendly tables */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Stack elements vertically on mobile */
+  .mobile-stack > * {
+    width: 100% !important;
+    margin-bottom: 1rem;
+  }
+}
+
 /* Leaflet */
 .leaflet-container { height: 100%; width: 100%; border-radius: 0.75rem; }
 .leaflet-popup-content { font-size: 0.875rem; line-height: 1.25rem; }

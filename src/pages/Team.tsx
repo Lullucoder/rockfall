@@ -5,86 +5,81 @@ import { Github, Linkedin, Mail, Award, GraduationCap } from 'lucide-react';
 export const Team: React.FC = () => {
   const teamMembers = [
     {
-      name: 'Dr. Sarah Chen',
-      role: 'Lead AI Researcher',
-      bio: 'PhD in Machine Learning from MIT, 10+ years in predictive analytics for mining safety.',
-      image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face',
+      name: 'Amit Agarwal',
+      role: 'Team Lead & AI Specialist',
+      bio: '2nd year Btech CSE student at KLU, passionate about AI and its applications in real-world problems.',
+      image: 'amit.png',
       expertise: ['Machine Learning', 'Geological Modeling', 'Risk Assessment'],
-      education: 'PhD MIT, MS Stanford',
-      github: 'sarahchen',
-      linkedin: 'sarahchen-ai',
-      email: 'sarah.chen@rpa.com'
+      education: 'Bteech Computer Science, KLU',
+      github: 'amanagarwal0602',
+      linkedin: 'amitagarwal-ai',
+      email: 'amit.agarwal@gmail.com'
     },
     {
-      name: 'Michael Rodriguez',
-      role: 'Senior Geotechnical Engineer',
-      bio: 'Mining engineer with 15+ years experience in slope stability and rockfall prediction.',
+      name: 'Prashant Singh',
+      role: 'Frontend Developer',
+      bio: '2nd year Btech CSE student at KLU, focused on building intuitive user interfaces and data visualizations.',
       image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face',
       expertise: ['Slope Stability', 'Rock Mechanics', 'Field Operations'],
       education: 'MS Mining Engineering, Colorado School of Mines',
-      github: 'mrodriguez',
-      linkedin: 'michael-rodriguez-mining',
-      email: 'michael.rodriguez@rpa.com'
+      github: 'lullucoder',
+      linkedin: 'prashant-singh-18577030b',
+      email: 'prashantcoc678@gmail.com'
     },
     {
-      name: 'Emily Johnson',
-      role: 'Frontend Developer',
-      bio: 'Full-stack developer specializing in React and data visualization for scientific applications.',
+      name: 'Sohan Kumar Sahu',
+      role: 'Backend Developer',
+      bio: '2nd year Btech CSE student at KLU, specializing in scalable backend systems and cloud infrastructure.',
       image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=face',
       expertise: ['React/TypeScript', 'Data Visualization', 'UI/UX Design'],
       education: 'BS Computer Science, UC Berkeley',
-      github: 'emilyjohnson',
-      linkedin: 'emily-johnson-dev',
-      email: 'emily.johnson@rpa.com'
+      github: 'sohankumar',
+      linkedin: 'sohan-kumar-sahu',
+      email: 'sohan.kumar@rpa.com'
     },
     {
-      name: 'Dr. James Liu',
-      role: 'Data Scientist',
-      bio: 'Sensor data analysis expert with background in IoT systems and real-time processing.',
+      name: 'Riyann Dsouza',
+      role: 'Presentator',
+      bio: '2nd year Btech CSE student at KLU, interested in data science and AI-driven decision making.',
       image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face',
       expertise: ['IoT Systems', 'Real-time Analytics', 'Sensor Networks'],
-      education: 'PhD Data Science, Carnegie Mellon',
-      github: 'jamesliu',
-      linkedin: 'james-liu-data',
-      email: 'james.liu@rpa.com'
+      education: 'Btech Computer Science, KLU',
+      github: 'riyann-dsouza',
+      linkedin: 'riyann-dsouza-data',
+      email: 'riyann.dsouza@rpa.com'
     },
     {
-      name: 'Rachel Thompson',
+      name: 'Suhani Parashar',
       role: 'Safety Systems Engineer',
       bio: 'Safety engineering specialist focused on emergency response systems and protocol development.',
       image: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&h=300&fit=crop&crop=face',
       expertise: ['Safety Protocols', 'Emergency Response', 'Risk Management'],
       education: 'MS Safety Engineering, Texas A&M',
-      github: 'rachelthompson',
-      linkedin: 'rachel-thompson-safety',
-      email: 'rachel.thompson@rpa.com'
+      github: 'suhaniparashar',
+      linkedin: 'suhani-parashar-safety',
+      email: 'suhani.parashar@rpa.com'
     },
     {
-      name: 'David Park',
+      name: 'Mudra Swami',
       role: 'DevOps Engineer',
       bio: 'Cloud infrastructure and deployment specialist ensuring 99.9% system uptime.',
       image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&h=300&fit=crop&crop=face',
       expertise: ['Cloud Infrastructure', 'System Monitoring', 'CI/CD'],
       education: 'BS Computer Engineering, Georgia Tech',
-      github: 'davidpark',
-      linkedin: 'david-park-devops',
-      email: 'david.park@rpa.com'
+      github: 'mudraswami',
+      linkedin: 'mudra-swami-devops',
+      email: 'mudra.swami@rpa.com'
     }
   ];
 
   const advisors = [
     {
-      name: 'Prof. Margaret Williams',
-      role: 'Technical Advisor',
-      affiliation: 'Stanford University - Geological Sciences',
-      expertise: 'Rock mechanics and slope stability research'
+      name: 'Dr Kalyan Dusarlapudi 2104',
+      role: 'Mentor & Advisor',
+      affiliation: 'Associate Professor, KLU',
+      expertise: 'AI and Machine Learning'
     },
-    {
-      name: 'Dr. Robert Anderson',
-      role: 'Industry Advisor',
-      affiliation: 'Former VP Safety, BHP Billiton',
-      expertise: 'Mining safety and operational excellence'
-    }
+  
   ];
 
   return (

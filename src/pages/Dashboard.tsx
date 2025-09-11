@@ -31,21 +31,21 @@ export const Dashboard: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col lg:flex-row items-start lg:items-center justify-between space-y-4 lg:space-y-0"
+        className="flex flex-col space-y-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Monitoring Dashboard</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Monitoring Dashboard</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">
             Real-time rockfall prediction and monitoring system
           </p>
         </div>
         
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsRealTimeActive(!isRealTimeActive)}
-            className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`flex items-center justify-center px-4 py-3 sm:py-2 rounded-lg font-medium transition-colors touch-target ${
               isRealTimeActive
                 ? 'bg-safe-600 text-white hover:bg-safe-700'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -64,7 +64,9 @@ export const Dashboard: React.FC = () => {
             )}
           </motion.button>
           
-          <ExportReport />
+          <div className="sm:ml-auto">
+            <ExportReport />
+          </div>
         </div>
       </motion.div>
 
@@ -129,24 +131,25 @@ export const Dashboard: React.FC = () => {
         transition={{ delay: 0.2 }}
         className="border-b border-gray-200"
       >
-        <nav className="flex space-x-8">
+        <nav className="flex overflow-x-auto">
           {[
             { key: 'overview', label: 'Overview', icon: Shield },
-            { key: 'analysis', label: 'Image Analysis', icon: Camera },
-            { key: 'alerts', label: 'Alert System', icon: AlertTriangle },
+            { key: 'analysis', label: 'Analysis', icon: Camera },
+            { key: 'alerts', label: 'Alerts', icon: AlertTriangle },
             { key: 'reports', label: 'Reports', icon: FileText }
           ].map(({ key, label, icon: Icon }) => (
             <button
               key={key}
               onClick={() => setActiveTab(key as any)}
-              className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`flex items-center space-x-2 py-3 sm:py-4 px-3 sm:px-4 border-b-2 font-medium text-sm transition-colors whitespace-nowrap touch-target ${
                 activeTab === key
                   ? 'border-navy-500 text-navy-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
               <Icon className="w-4 h-4" />
-              <span>{label}</span>
+              <span className="hidden sm:inline">{label}</span>
+              <span className="sm:hidden">{label.split(' ')[0]}</span>
             </button>
           ))}
         </nav>
@@ -156,9 +159,9 @@ export const Dashboard: React.FC = () => {
       {activeTab === 'overview' && (
       <div>
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
         {/* Map and Alerts */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="xl:col-span-2 space-y-4 sm:space-y-6">
           {/* Risk Map */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -170,10 +173,11 @@ export const Dashboard: React.FC = () => {
               <h2 className="text-lg font-semibold text-gray-900">Risk Map</h2>
               <div className="flex items-center space-x-2 text-sm text-gray-500">
                 <div className="w-2 h-2 bg-safe-500 rounded-full animate-pulse"></div>
-                <span>Live Data</span>
+                <span className="hidden sm:inline">Live Data</span>
+                <span className="sm:hidden">Live</span>
               </div>
             </div>
-            <div className="h-96">
+            <div className="h-64 sm:h-80 lg:h-96">
               <RiskMap 
                 onZoneSelect={setSelectedZone}
                 isRealTimeActive={isRealTimeActive}
@@ -189,15 +193,17 @@ export const Dashboard: React.FC = () => {
             className="card"
           >
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Sensor Data Trends</h2>
-            <SensorCharts 
-              selectedZone={selectedZone}
-              isRealTimeActive={isRealTimeActive}
-            />
+            <div className="min-h-64">
+              <SensorCharts 
+                selectedZone={selectedZone}
+                isRealTimeActive={isRealTimeActive}
+              />
+            </div>
           </motion.div>
         </div>
 
         {/* Alerts and Zone Details */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Alerts Panel */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -216,25 +222,27 @@ export const Dashboard: React.FC = () => {
               className="card"
             >
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Zone Details: {selectedZone}
+                <span className="hidden sm:inline">Zone Details: </span>
+                <span className="sm:hidden">Zone: </span>
+                {selectedZone}
               </h3>
               {/* Zone details content will be populated based on selectedZone */}
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Risk Level:</span>
-                  <span className="font-medium text-warning-600">High</span>
+                  <span className="text-gray-600 text-sm sm:text-base">Risk Level:</span>
+                  <span className="font-medium text-warning-600 text-sm sm:text-base">High</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Last Inspection:</span>
-                  <span className="font-medium">2 hours ago</span>
+                  <span className="text-gray-600 text-sm sm:text-base">Last Inspection:</span>
+                  <span className="font-medium text-sm sm:text-base">2 hours ago</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Slope Angle:</span>
-                  <span className="font-medium">65°</span>
+                  <span className="text-gray-600 text-sm sm:text-base">Slope Angle:</span>
+                  <span className="font-medium text-sm sm:text-base">65°</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Rock Type:</span>
-                  <span className="font-medium">Limestone</span>
+                  <span className="text-gray-600 text-sm sm:text-base">Rock Type:</span>
+                  <span className="font-medium text-sm sm:text-base">Limestone</span>
                 </div>
               </div>
             </motion.div>
@@ -268,13 +276,14 @@ export const Dashboard: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
                 <Brain className="w-5 h-5 text-navy-600" />
-                <h3 className="text-lg font-semibold text-gray-900">AI Analysis</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900">AI Analysis</h3>
               </div>
               <Link 
                 to="/ai-assessment"
-                className="text-sm text-navy-600 hover:text-navy-700 flex items-center space-x-1"
+                className="text-xs sm:text-sm text-navy-600 hover:text-navy-700 flex items-center space-x-1"
               >
-                <span>View Full Analysis</span>
+                <span className="hidden sm:inline">View Full Analysis</span>
+                <span className="sm:hidden">View</span>
                 <ExternalLink className="w-3 h-3" />
               </Link>
             </div>
@@ -285,10 +294,11 @@ export const Dashboard: React.FC = () => {
               <div className="pt-4 border-t border-gray-200">
                 <Link 
                   to="/ai-assessment"
-                  className="w-full py-2 px-4 bg-navy-50 text-navy-700 rounded-lg hover:bg-navy-100 flex items-center justify-center space-x-2 text-sm font-medium"
+                  className="w-full py-3 px-4 bg-navy-50 text-navy-700 rounded-lg hover:bg-navy-100 flex items-center justify-center space-x-2 text-sm font-medium touch-target"
                 >
                   <Brain className="w-4 h-4" />
-                  <span>Open Full AI Assessment Suite</span>
+                  <span className="hidden sm:inline">Open Full AI Assessment Suite</span>
+                  <span className="sm:hidden">Full AI Assessment</span>
                 </Link>
               </div>
             </div>
@@ -375,7 +385,7 @@ export const Dashboard: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <div className="card">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Export Reports</h3>
               <ExportReport />
@@ -384,25 +394,25 @@ export const Dashboard: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Report History</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                  <div>
-                    <div className="font-medium">Daily Risk Assessment</div>
-                    <div className="text-sm text-gray-500">Generated today, 8:00 AM</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-sm sm:text-base truncate">Daily Risk Assessment</div>
+                    <div className="text-xs sm:text-sm text-gray-500">Generated today, 8:00 AM</div>
                   </div>
-                  <button className="text-navy-600 hover:text-navy-700 text-sm">Download</button>
+                  <button className="text-navy-600 hover:text-navy-700 text-xs sm:text-sm ml-2 touch-target">Download</button>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                  <div>
-                    <div className="font-medium">Weekly Analysis Report</div>
-                    <div className="text-sm text-gray-500">Generated yesterday</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-sm sm:text-base truncate">Weekly Analysis Report</div>
+                    <div className="text-xs sm:text-sm text-gray-500">Generated yesterday</div>
                   </div>
-                  <button className="text-navy-600 hover:text-navy-700 text-sm">Download</button>
+                  <button className="text-navy-600 hover:text-navy-700 text-xs sm:text-sm ml-2 touch-target">Download</button>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                  <div>
-                    <div className="font-medium">Emergency Response Log</div>
-                    <div className="text-sm text-gray-500">Generated 3 days ago</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-sm sm:text-base truncate">Emergency Response Log</div>
+                    <div className="text-xs sm:text-sm text-gray-500">Generated 3 days ago</div>
                   </div>
-                  <button className="text-navy-600 hover:text-navy-700 text-sm">Download</button>
+                  <button className="text-navy-600 hover:text-navy-700 text-xs sm:text-sm ml-2 touch-target">Download</button>
                 </div>
               </div>
             </div>
