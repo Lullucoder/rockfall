@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Eye, AlertTriangle, Shield, BarChart3, Mountain } from 'lucide-react';
+import { ArrowRight, Eye, AlertTriangle, Shield, BarChart3, Mountain, Brain, Zap, Users, Globe } from 'lucide-react';
 
 export const Landing: React.FC = () => {
   return (
@@ -38,17 +38,45 @@ export const Landing: React.FC = () => {
               transition={{ duration: 0.8 }}
               className="text-5xl md:text-7xl font-bold text-white mb-6"
             >
-              Predict. Alert. Protect.
+              AI-Powered Rockfall
+              <br />
+              <span className="text-safe-400">Prediction System</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto"
+              className="text-xl md:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto"
             >
-              AI-driven rockfall monitoring system for open-pit mines. 
-              Real-time prediction, intelligent alerts, and comprehensive protection.
+              Revolutionary AI-based system for open-pit mines that processes multi-source data 
+              including Digital Elevation Models, drone imagery, geotechnical sensors, and environmental factors 
+              to predict rockfall incidents and enhance mining safety.
             </motion.p>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="flex flex-wrap justify-center gap-4 mb-12"
+            >
+              <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg px-4 py-2 text-white">
+                <Brain className="w-5 h-5 inline mr-2" />
+                Machine Learning Prediction
+              </div>
+              <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg px-4 py-2 text-white">
+                <Zap className="w-5 h-5 inline mr-2" />
+                Real-time Alerts
+              </div>
+              <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg px-4 py-2 text-white">
+                <Globe className="w-5 h-5 inline mr-2" />
+                Open-source Integration
+              </div>
+              <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg px-4 py-2 text-white">
+                <Users className="w-5 h-5 inline mr-2" />
+                Mine Safety Focus
+              </div>
+            </motion.div>
+            
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -78,12 +106,75 @@ export const Landing: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Advanced Monitoring Capabilities
+              Multi-Source Data Integration
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our AI-powered system provides comprehensive rockfall prediction and monitoring 
-              for enhanced mine safety and operational efficiency.
+            <p className="text-xl text-gray-600 max-w-4xl mx-auto">
+              Our system processes and analyzes multiple data sources including Digital Elevation Models (DEM), 
+              drone-captured imagery, geotechnical sensor data, and environmental factors to provide 
+              comprehensive rockfall risk assessment for open-pit mining operations.
             </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center p-6 rounded-xl bg-blue-50 hover:shadow-lg transition-shadow"
+            >
+              <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mx-auto mb-4">
+                <Mountain className="w-6 h-6 text-blue-600" />
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-2">Digital Elevation Models</h4>
+              <p className="text-sm text-gray-600">
+                Topographic analysis and slope stability assessment
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-center p-6 rounded-xl bg-green-50 hover:shadow-lg transition-shadow"
+            >
+              <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mx-auto mb-4">
+                <Eye className="w-6 h-6 text-green-600" />
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-2">Drone Imagery</h4>
+              <p className="text-sm text-gray-600">
+                High-resolution aerial photography and AI image analysis
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-center p-6 rounded-xl bg-orange-50 hover:shadow-lg transition-shadow"
+            >
+              <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-full mx-auto mb-4">
+                <BarChart3 className="w-6 h-6 text-orange-600" />
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-2">Sensor Data</h4>
+              <p className="text-sm text-gray-600">
+                Displacement, strain, and pore pressure monitoring
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="text-center p-6 rounded-xl bg-purple-50 hover:shadow-lg transition-shadow"
+            >
+              <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mx-auto mb-4">
+                <Zap className="w-6 h-6 text-purple-600" />
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-2">Environmental Factors</h4>
+              <p className="text-sm text-gray-600">
+                Rainfall, temperature, and vibration analysis
+              </p>
+            </motion.div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -94,12 +185,12 @@ export const Landing: React.FC = () => {
               className="text-center p-8 rounded-xl bg-gray-50 hover:shadow-lg transition-shadow"
             >
               <div className="flex items-center justify-center w-16 h-16 bg-navy-100 rounded-full mx-auto mb-6">
-                <Eye className="w-8 h-8 text-navy-600" />
+                <Brain className="w-8 h-8 text-navy-600" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Real-time Monitoring</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">AI Risk Prediction</h3>
               <p className="text-gray-600">
-                Continuous sensor data collection and analysis with AI-powered pattern recognition 
-                for early warning detection.
+                Machine learning models identify patterns that precede rockfall events using 
+                real-time sensor data and historical analysis for proactive decision-making.
               </p>
             </motion.div>
 
@@ -112,10 +203,10 @@ export const Landing: React.FC = () => {
               <div className="flex items-center justify-center w-16 h-16 bg-warning-100 rounded-full mx-auto mb-6">
                 <AlertTriangle className="w-8 h-8 text-warning-600" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Intelligent Alerts</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Real-time Alerts</h3>
               <p className="text-gray-600">
-                Smart notification system with severity classification and automated response 
-                protocols for immediate action.
+                Smart notification system with SMS/email integration, probability-based forecasts,
+                and automated response protocols for mine operations teams.
               </p>
             </motion.div>
 
@@ -128,10 +219,10 @@ export const Landing: React.FC = () => {
               <div className="flex items-center justify-center w-16 h-16 bg-safe-100 rounded-full mx-auto mb-6">
                 <Shield className="w-8 h-8 text-safe-600" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Comprehensive Protection</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Dashboard & Visualization</h3>
               <p className="text-gray-600">
-                Multi-layered safety approach combining predictive analytics, risk assessment, 
-                and emergency response coordination.
+                User-friendly web dashboard for mine planners with real-time risk maps, 
+                vulnerable zone identification, and comprehensive reporting capabilities.
               </p>
             </motion.div>
           </div>

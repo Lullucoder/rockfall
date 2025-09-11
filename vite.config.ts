@@ -18,7 +18,28 @@ export default defineConfig({
     port: 5173,
     allowedHosts: [
       ...allowed,
-      'upset-pots-begin.loca.lt' // current tunnel subdomain
+      '7d257afd0e82.ngrok-free.app' // current tunnel subdomain
     ]
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['framer-motion', 'lucide-react'],
+          maps: ['leaflet', 'react-leaflet'],
+          ai: ['@google/generative-ai'],
+          charts: ['recharts'],
+          utils: ['date-fns', 'papaparse']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  },
+  preview: {
+    port: 4173,
+    host: true
   }
 });

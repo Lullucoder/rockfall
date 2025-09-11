@@ -72,30 +72,129 @@ Max 140 words.`;
 
 export async function summarizeImage(file: File) {
   if (!genAI) return 'Gemini API key missing.';
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-  const bytes = await file.arrayBuffer();
-  const base64 = btoa(String.fromCharCode(...new Uint8Array(bytes)));
-  const prompt = 'You analyze a mine slope / bench image for visible instability indicators (rock fractures, overhangs, water seepage, fresh debris). Provide a concise geotechnical-style note (<90 words). Avoid speculation beyond visible cues.';
+  
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const bytes = await file.arrayBuffer();
+    const uint8Array = new Uint8Array(bytes);
+    const base64 = btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
+    
+    const prompt = 'You analyze a mine slope / bench image for visible instability indicators (rock fractures, overhangs, water seepage, fresh debris). Provide a concise geotechnical-style note (<90 words). Avoid speculation beyond visible cues.';
 
-  const res = await model.generateContent([
-    {
-      inlineData: {
-        data: base64,
-        mimeType: file.type || 'image/jpeg'
-      }
-    },
-    prompt
-  ]);
-  return res.response.text();
+    const res = await model.generateContent([
+      {
+        inlineData: {
+          data: base64,
+          mimeType: file.type || 'image/jpeg'
+        }
+      },
+      prompt
+    ]);
+    return res.response.text();
+  } catch (error) {
+    console.error('Error in summarizeImage:', error);
+    throw new Error(`Image analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+export async function analyzeMultipleImages(files: File[], analysisType: 'detailed' | 'quick' = 'detailed') {
+  if (!genAI) return 'Gemini API key missing.';
+  
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    
+    // Process all images
+    const imagePromises = files.map(async (file) => {
+      const bytes = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(bytes);
+      const base64 = btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
+      
+      return {
+        inlineData: {
+          data: base64,
+          mimeType: file.type || 'image/jpeg'
+        }
+      };
+    });
+    
+    const imageData = await Promise.all(imagePromises);
+    
+    const detailedPrompt = `You are an expert mining geologist analyzing multiple open-pit mine slope images for comprehensive rockfall risk assessment.
+
+ANALYZE ALL ${files.length} IMAGES FOR:
+
+STRUCTURAL FEATURES:
+- Rock fractures, joints, and discontinuities across all images
+- Bedding planes and foliation orientation patterns
+- Existing rockfall scars or failure surfaces
+- Overhangs and undercuts in different areas
+
+WEATHERING & EROSION:
+- Rock mass weathering degree variations
+- Erosion patterns and drainage channels
+- Surface spalling or deterioration zones
+- Clay alteration areas
+
+WATER INFLUENCE:
+- Seepage areas and water staining patterns
+- Ice formation potential in different exposures
+- Vegetation indicating water presence
+- Overall drainage effectiveness
+
+STABILITY INDICATORS:
+- Loose rock blocks or debris accumulation
+- Recent rockfall evidence across the slope
+- Crack propagation patterns
+- Block size distribution variations
+
+COMPARATIVE ANALYSIS:
+- Identify the highest risk zones
+- Compare stability between different areas
+- Assess progression of deterioration
+- Evaluate overall slope condition
+
+Provide a comprehensive assessment with:
+1. OVERALL RISK LEVEL: (Low/Medium/High/Critical)
+2. ZONE-SPECIFIC RISKS: Rank areas by risk level
+3. PRIMARY HAZARDS: Top 5 identified risks across all images
+4. FAILURE MECHANISMS: Most likely failure modes
+5. PRIORITIZED RECOMMENDATIONS: Immediate, short-term, and long-term actions
+6. MONITORING STRATEGY: Suggested surveillance points and frequency
+7. OPERATIONAL IMPACT: Equipment/personnel safety recommendations
+
+Technical but accessible language. Limit to 350 words.`;
+
+    const quickPrompt = `Analyze these ${files.length} mine slope images for immediate rockfall hazards. Provide:
+1. Overall risk assessment across all images
+2. Highest priority zones requiring attention
+3. Most critical visible instability signs
+4. Immediate safety actions needed
+5. Recommended monitoring priorities
+Keep under 150 words, focus on actionable insights.`;
+
+    const contentParts = [
+      ...imageData,
+      analysisType === 'detailed' ? detailedPrompt : quickPrompt
+    ];
+
+    const res = await model.generateContent(contentParts);
+    return res.response.text();
+  } catch (error) {
+    console.error('Error in analyzeMultipleImages:', error);
+    throw new Error(`Multi-image analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 }
 
 export async function analyzeRockfallRisk(file: File, analysisType: 'detailed' | 'quick' = 'detailed') {
   if (!genAI) return 'Gemini API key missing.';
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
-  const bytes = await file.arrayBuffer();
-  const base64 = btoa(String.fromCharCode(...new Uint8Array(bytes)));
   
-  const detailedPrompt = `You are an expert mining geologist analyzing an open-pit mine slope for rockfall risk assessment. 
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    const bytes = await file.arrayBuffer();
+    const uint8Array = new Uint8Array(bytes);
+    const base64 = btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
+    
+    const detailedPrompt = `You are an expert mining geologist analyzing an open-pit mine slope for rockfall risk assessment. 
 
 Analyze this image for the following geological hazard indicators:
 
@@ -154,6 +253,10 @@ Keep under 100 words, focus on actionable insights.`;
     analysisType === 'detailed' ? detailedPrompt : quickPrompt
   ]);
   return res.response.text();
+  } catch (error) {
+    console.error('Error in analyzeRockfallRisk:', error);
+    throw new Error(`Rockfall analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 }
 
 export async function analyzeElevationData(elevationData: any, _metadata?: any) {

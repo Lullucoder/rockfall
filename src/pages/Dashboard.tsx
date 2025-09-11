@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle, TrendingUp, Shield, Play, Pause, Brain, ExternalLink } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Shield, Play, Pause, Brain, ExternalLink, Camera, FileText } from 'lucide-react';
 import { RiskMap } from '../components/RiskMap';
 import { AlertsPanel } from '../components/AlertsPanel';
 import { SensorCharts } from '../components/SensorCharts';
 import { RiskGauge } from '../components/RiskGauge';
 import { ExportReport } from '../components/ExportReport';
 import { ImageSummaryUploader } from '../components/ImageSummaryUploader';
+import { MultiImageRockfallAnalysis } from '../components/MultiImageRockfallAnalysis';
+import { EnhancedAlertsSystem } from '../components/EnhancedAlertsSystem';
 import { Link } from 'react-router-dom';
 
 export const Dashboard: React.FC = () => {
   const [isRealTimeActive, setIsRealTimeActive] = useState(true);
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'analysis' | 'alerts' | 'reports'>('overview');
 
   // Mock overall statistics
   const overallStats = {
@@ -119,6 +122,39 @@ export const Dashboard: React.FC = () => {
         </div>
       </motion.div>
 
+      {/* Tab Navigation */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="border-b border-gray-200"
+      >
+        <nav className="flex space-x-8">
+          {[
+            { key: 'overview', label: 'Overview', icon: Shield },
+            { key: 'analysis', label: 'Image Analysis', icon: Camera },
+            { key: 'alerts', label: 'Alert System', icon: AlertTriangle },
+            { key: 'reports', label: 'Reports', icon: FileText }
+          ].map(({ key, label, icon: Icon }) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key as any)}
+              className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === key
+                  ? 'border-navy-500 text-navy-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{label}</span>
+            </button>
+          ))}
+        </nav>
+      </motion.div>
+
+      {/* Tab Content */}
+      {activeTab === 'overview' && (
+      <div>
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Map and Alerts */}
@@ -259,6 +295,120 @@ export const Dashboard: React.FC = () => {
           </motion.div>
         </div>
       </div>
+      </div>
+      )}
+
+      {/* Image Analysis Tab */}
+      {activeTab === 'analysis' && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          <div className="card">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Multi-Image Rockfall Analysis</h2>
+            <MultiImageRockfallAnalysis />
+          </div>
+        </motion.div>
+      )}
+
+      {/* Enhanced Alerts Tab */}
+      {activeTab === 'alerts' && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          <div className="card">
+            <EnhancedAlertsSystem 
+              alerts={[
+                {
+                  id: 'alert-001',
+                  zone_id: 'zone-1',
+                  zone_name: 'North Bench Level 1200m',
+                  severity: 'critical',
+                  status: 'active',
+                  message: 'Significant rock fractures detected with increasing displacement rates',
+                  risk_probability: 0.87,
+                  timestamp: new Date().toISOString(),
+                  predicted_timeline: '6-12 hours',
+                  recommended_actions: [
+                    'Immediate evacuation of personnel from Zone 1',
+                    'Establish 150m safety perimeter',
+                    'Deploy additional monitoring sensors',
+                    'Contact emergency response team'
+                  ],
+                  affected_personnel: 8,
+                  equipment_at_risk: ['Excavator CAT-320', 'Drill Rig DR-150', 'Haul Truck Fleet A']
+                },
+                {
+                  id: 'alert-002',
+                  zone_id: 'zone-3',
+                  zone_name: 'East Wall Section B',
+                  severity: 'high',
+                  status: 'acknowledged',
+                  message: 'Water seepage increasing after recent rainfall',
+                  risk_probability: 0.65,
+                  timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+                  predicted_timeline: '24-48 hours',
+                  recommended_actions: [
+                    'Install drainage measures',
+                    'Increase monitoring frequency',
+                    'Review slope stability calculations'
+                  ],
+                  affected_personnel: 3,
+                  equipment_at_risk: ['Survey Equipment', 'Mobile Platform MP-1']
+                }
+              ]}
+              onAlertAction={(alertId, action) => {
+                console.log(`Alert ${alertId} - Action: ${action}`);
+              }}
+            />
+          </div>
+        </motion.div>
+      )}
+
+      {/* Reports Tab */}
+      {activeTab === 'reports' && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="card">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Export Reports</h3>
+              <ExportReport />
+            </div>
+            <div className="card">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Report History</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                  <div>
+                    <div className="font-medium">Daily Risk Assessment</div>
+                    <div className="text-sm text-gray-500">Generated today, 8:00 AM</div>
+                  </div>
+                  <button className="text-navy-600 hover:text-navy-700 text-sm">Download</button>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                  <div>
+                    <div className="font-medium">Weekly Analysis Report</div>
+                    <div className="text-sm text-gray-500">Generated yesterday</div>
+                  </div>
+                  <button className="text-navy-600 hover:text-navy-700 text-sm">Download</button>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                  <div>
+                    <div className="font-medium">Emergency Response Log</div>
+                    <div className="text-sm text-gray-500">Generated 3 days ago</div>
+                  </div>
+                  <button className="text-navy-600 hover:text-navy-700 text-sm">Download</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Real-time Status */}
       <motion.div

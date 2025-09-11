@@ -1,2 +1,2 @@
-// Re-export all AI client functions
-export * from './geminiClient';
+// Re-export all AI service functions
+export * from './geminiService';
