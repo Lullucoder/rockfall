@@ -137,7 +137,7 @@ export const Contact: React.FC = () => {
                   value={formData.name}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-transparent outline-none transition-colors"
-                  placeholder="John Doe"
+                  placeholder="RockSafe"
                 />
               </div>
               <div>
@@ -277,7 +277,7 @@ export const Contact: React.FC = () => {
           </motion.div>
 
           {/* Map Placeholder */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9 }}
@@ -291,7 +291,7 @@ export const Contact: React.FC = () => {
                 <p className="text-sm">123 Innovation Drive, Tech Valley, CA</p>
               </div>
             </div>
-          </motion.div>
+          </motion.div> */}
         </motion.div>
       </div>
 

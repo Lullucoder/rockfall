@@ -10,27 +10,40 @@ export const Landing: React.FC = () => {
       <header className="relative z-10 px-6 py-4">
         <nav className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center">
-            <div className="flex items-center justify-center w-10 h-10 bg-white rounded-lg">
-              <div className="w-6 h-6 text-navy-600">
-                <Mountain />
-              </div>
+            <div className="flex items-center justify-center w-10 h-10 bg-white rounded-lg overflow-hidden">
+              <img 
+                src="https://lh3.googleusercontent.com/pw/AP1GczPglrA4_0VH4D4-HVTxLCzhgo03yutjZ0y2oaOPKt1F1USiPTctVYfNsPHlFHbQ9O4Jt9IC4EpxK-yjeZ0R3BZn-Iy0_pmGK1P5iu3akaBYVQdblZp0nuquViOFRjLvB00WYu7xk5FaQIy-poG7ZSMeAQ=w397-h311-s-no-gm" 
+                alt="RockSafe 360 Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
-            <span className="ml-3 text-xl font-bold text-white">RPA</span>
+            <span className="ml-3 text-xl font-bold text-white">RockSafe 360</span>
           </div>
           <div className="hidden md:flex items-center space-x-8">
             <Link to="/about" className="text-gray-300 hover:text-white transition-colors">About</Link>
-            <Link to="/team" className="text-gray-300 hover:text-white transition-colors">Team</Link>
+            {/* <Link to="/team" className="text-gray-300 hover:text-white transition-colors">Team</Link> */}
             <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">Contact</Link>
-            <Link to="/dashboard" className="btn-primary">
+            {/*<Link to="/dashboard" className="btn-primary">
               Open Dashboard
-            </Link>
+            </Link>*/}
           </div>
         </nav>
       </header>
 
       {/* Hero Section */}
-      <section className="relative px-6 py-20">
-        <div className="max-w-7xl mx-auto">
+      <section className="relative px-6 py-20 overflow-hidden">
+        {/* Background Image with Blur */}
+        <div className="absolute inset-0 z-0">
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat filter blur-sm"
+            style={{
+              backgroundImage: `url('https://lh3.googleusercontent.com/pw/AP1GczOfbf7SCylLAhft8Q03wwpYBRl6Z-tzlC9smYPNBGy03fBO8SABzJSZZGDCNDb5WXqZxgZALSP3WKnt56rGoMfcE8YrOhYjBkOxpmyqPMWzrYSulYKFW1Ao9nngxH4xGze_8TI1BnRkMC3A3HRGD8CdvA=w1200-h639-s-no-gm')`
+            }}
+          />
+          <div className="absolute inset-0 bg-navy-900 bg-opacity-40"/>
+        </div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center">
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
@@ -248,7 +261,7 @@ export const Landing: React.FC = () => {
               transition={{ duration: 0.6 }}
               className="text-center"
             >
-              <div className="text-4xl font-bold text-navy-600 mb-2">99.2%</div>
+              <div className="text-4xl font-bold text-gray-300 mb-2"><i>Beta</i></div>
               <div className="text-lg font-medium text-gray-900">Prediction Accuracy</div>
               <div className="text-gray-600">Early warning detection</div>
             </motion.div>
@@ -281,7 +294,7 @@ export const Landing: React.FC = () => {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="text-center"
             >
-              <div className="text-4xl font-bold text-navy-600 mb-2">15+</div>
+              <div className="text-4xl font-bold text-black-600 mb-2">NA</div>
               <div className="text-lg font-medium text-gray-900">Active Sites</div>
               <div className="text-gray-600">Mines under protection</div>
             </motion.div>
@@ -312,15 +325,9 @@ export const Landing: React.FC = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Link
-              to="/dashboard"
-              className="inline-flex items-center px-8 py-4 bg-white text-navy-800 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <BarChart3 className="mr-2 w-5 h-5" />
-              Explore Dashboard
-            </Link>
           </motion.div>
         </div>
+        <div class="max-w-4xl mx-auto text-center"><h2 class="text-4xl font-bold text-white mb-6">Made with ❤️ by</h2><p class="text-xl text-gray-300">Amit, Suhani, Mudra, Prashant, Sohan, Reiyan</p></div>
       </section>
 
       {/* Footer */}
@@ -331,10 +338,10 @@ export const Landing: React.FC = () => {
               <div className="flex items-center justify-center w-8 h-8 bg-white rounded-lg">
                 <Mountain className="w-5 h-5 text-navy-600" />
               </div>
-              <span className="ml-2 text-lg font-bold text-white">RPA System</span>
+              <span className="ml-2 text-lg font-bold text-white">RockSafe 360</span>
             </div>
             <div className="text-gray-400 text-sm">
-              © 2025 Rockfall Prediction & Alert System. All rights reserved.
+              © 2025 RockSafe 360. All rights reserved.
             </div>
           </div>
         </div>

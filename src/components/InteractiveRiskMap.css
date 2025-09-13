@@ -1,0 +1,181 @@
+/* Enhanced Risk Map Styles */
+
+/* Ensure map container has proper dimensions */
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 300px !important;
+  z-index: 1;
+}
+
+/* Fix for map tiles loading */
+.leaflet-tile-pane {
+  filter: none !important;
+}
+
+.leaflet-tile {
+  max-width: none !important;
+}
+
+/* Custom zone center markers */
+.custom-zone-center {
+  animation: pulse 2s infinite;
+  z-index: 1000;
+}
+
+.custom-zone-center:hover {
+  transform: scale(1.2);
+  transition: transform 0.2s ease;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Contour hover effects */
+.leaflet-interactive {
+  transition: all 0.3s ease;
+}
+
+.leaflet-interactive:hover {
+  filter: brightness(1.1);
+  stroke-width: 3px !important;
+}
+
+/* Enhanced popup styles */
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: 1.4;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.leaflet-popup-tip {
+  background: white;
+  border: none;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+}
+
+/* Map loading animation */
+.loading-pulse {
+  animation: loading-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-pulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Drawing mode indicators */
+.drawing-mode-active {
+  cursor: crosshair !important;
+}
+
+.drawing-mode-active * {
+  cursor: crosshair !important;
+}
+
+/* Risk level indicators */
+.risk-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.risk-critical {
+  background-color: #ef4444;
+}
+
+.risk-high {
+  background-color: #f59e0b;
+}
+
+.risk-medium {
+  background-color: #eab308;
+}
+
+.risk-low {
+  background-color: #22c55e;
+}
+
+/* Enhanced button styles */
+.map-control-button {
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.map-control-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Location selector enhancements */
+.location-preset-item {
+  transition: all 0.2s ease;
+}
+
+.location-preset-item:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+  border-left: 3px solid #3b82f6;
+  padding-left: calc(0.5rem + 3px);
+}
+
+/* Zone list enhancements */
+.zone-list-item {
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.zone-list-item:hover {
+  border-left-color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .leaflet-control-container {
+    display: none;
+  }
+  
+  .custom-zone-center {
+    transform: scale(1.2);
+  }
+  
+  .leaflet-popup-content-wrapper {
+    max-width: 250px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .map-control-button {
+    background-color: rgba(31, 41, 55, 0.95);
+    color: white;
+  }
+  
+  .leaflet-popup-content-wrapper {
+    background-color: #374151;
+    color: white;
+  }
+  
+  .leaflet-popup-tip {
+    background: #374151;
+  }
+}

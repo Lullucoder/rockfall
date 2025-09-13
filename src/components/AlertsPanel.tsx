@@ -20,7 +20,13 @@ interface Alert {
   acknowledged_at: string | null;
 }
 
-export const AlertsPanel: React.FC = () => {
+export const AlertsPanel: React.FC<{
+  availableSections?: Array<{
+    id: string;
+    name: string;
+    terrainName: string;
+  }>;
+}> = ({ availableSections = [] }) => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -55,19 +61,27 @@ export const AlertsPanel: React.FC = () => {
 
   // Simulate alert button
   const simulateAlert = () => {
+    // Use real terrain section if available, otherwise fallback to default
+    const randomSection = availableSections.length > 0 
+      ? availableSections[Math.floor(Math.random() * availableSections.length)]
+      : { id: 'ZONE-002', name: 'East Wall Section A', terrainName: 'Default Site' };
+
     const newAlert: Alert = {
       id: `ALERT-SIM-${Date.now()}`,
-      zone_id: 'ZONE-002',
-      zone_name: 'East Wall Section A',
+      zone_id: randomSection.id,
+      zone_name: availableSections.length > 0 
+        ? `${randomSection.terrainName} - ${randomSection.name}`
+        : randomSection.name,
       timestamp: new Date().toISOString(),
       severity: 'critical',
       status: 'active',
       type: 'simulated',
-      message: 'Simulated critical alert: sudden displacement detected!',
+      message: `Simulated critical alert: sudden displacement detected in ${randomSection.name}!`,
       recommended_actions: [
-        'Evacuate personnel',
-        'Deploy emergency monitoring',
-        'Contact response team'
+        'Evacuate personnel from affected area',
+        'Deploy emergency monitoring equipment',
+        'Contact emergency response team',
+        'Establish safety perimeter'
       ],
       risk_probability: 0.99,
       auto_generated: false,

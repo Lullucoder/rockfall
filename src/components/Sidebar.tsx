@@ -6,7 +6,6 @@ import {
   Info,
   Users,
   Mail,
-  Mountain,
   Brain
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -72,11 +71,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       {/* Logo */}
       <div className="flex items-center px-4 sm:px-6 py-4 sm:py-6 border-b border-gray-200">
         <div className="flex items-center">
-          <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-navy-600 rounded-lg">
-            <Mountain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <img 
+              src="https://lh3.googleusercontent.com/pw/AP1GczPglrA4_0VH4D4-HVTxLCzhgo03yutjZ0y2oaOPKt1F1USiPTctVYfNsPHlFHbQ9O4Jt9IC4EpxK-yjeZ0R3BZn-Iy0_pmGK1P5iu3akaBYVQdblZp0nuquViOFRjLvB00WYu7xk5FaQIy-poG7ZSMeAQ=w397-h311-s-no-gm" 
+              alt="RockSafe 360 Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
           <div className="ml-3">
-            <h2 className="text-base sm:text-lg font-bold text-navy-800">RPA</h2>
+            <h2 className="text-base sm:text-lg font-bold text-navy-800">RockSafe 360</h2>
             <p className="text-xs text-gray-500">Rockfall Prediction</p>
           </div>
         </div>

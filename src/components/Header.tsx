@@ -30,8 +30,8 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, isSidebarOpen }
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
             <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-navy-800 truncate">
-              <span className="hidden sm:inline">Rockfall Prediction Dashboard</span>
-              <span className="sm:hidden">Rockfall Monitor</span>
+              <span className="hidden sm:inline">RockSafe 360 Dashboard</span>
+              <span className="sm:hidden">RockSafe 360</span>
             </h1>
             <div className="hidden lg:flex items-center text-xs sm:text-sm text-gray-500">
               <span className="w-2 h-2 bg-safe-500 rounded-full mr-2 animate-pulse"></span>
@@ -74,23 +74,23 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, isSidebarOpen }
           </motion.button>
           
           {/* Settings */}
-          <motion.button
+          {/* <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="hidden sm:flex p-2 text-gray-600 hover:text-navy-600 hover:bg-gray-100 rounded-lg transition-colors touch-target"
           >
             <Settings className="w-5 h-5" />
-          </motion.button>
+          </motion.button> */}
           
           {/* User Menu */}
-          <motion.button
+          {/* <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="flex items-center space-x-2 p-2 text-gray-600 hover:text-navy-600 hover:bg-gray-100 rounded-lg transition-colors touch-target"
           >
             <User className="w-5 h-5" />
-            <span className="hidden lg:block font-medium">John Doe</span>
-          </motion.button>
+            <span className="hidden lg:block font-medium">RockSafe</span>
+          </motion.button> */}
         </div>
       </div>
 

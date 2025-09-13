@@ -1,0 +1,102 @@
+/* Custom Topographical Map Styles */
+
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 400px !important;
+  z-index: 1;
+}
+
+/* Terrain section styling */
+.terrain-section {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.terrain-section:hover {
+  filter: brightness(1.1);
+  stroke-width: 4px !important;
+}
+
+.terrain-section.above-threshold {
+  animation: pulse-warning 2s infinite;
+}
+
+@keyframes pulse-warning {
+  0%, 100% {
+    fill-opacity: 0.6;
+  }
+  50% {
+    fill-opacity: 0.8;
+  }
+}
+
+/* Section labels */
+.section-label {
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.section-label:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+/* Map controls */
+.map-control-button {
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.map-control-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Loading animations */
+.loading-pulse {
+  animation: loading-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-pulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Terrain generation effects */
+.terrain-generating {
+  background: linear-gradient(45deg, #f0f9ff, #e0f2fe);
+  animation: terrain-scan 3s infinite;
+}
+
+@keyframes terrain-scan {
+  0%, 100% {
+    background-position: -200% 0;
+  }
+  50% {
+    background-position: 200% 0;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .section-label {
+    font-size: 10px !important;
+  }
+  
+  .terrain-section {
+    stroke-width: 3px !important;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .map-control-button {
+    background-color: rgba(31, 41, 55, 0.95);
+    color: white;
+  }
+}

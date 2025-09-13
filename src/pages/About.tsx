@@ -37,10 +37,10 @@ export const About: React.FC = () => {
   ];
 
   const stats = [
-    { label: 'Prediction Accuracy', value: '99.2%' },
+    { label: 'Prediction Accuracy', value: 'BETA' },
     { label: 'Response Time', value: '<2min' },
     { label: 'Active Sites', value: '15+' },
-    { label: 'Uptime', value: '99.9%' }
+    { label: 'Uptime', value: 'N/A' }
   ];
 
   const benefits = [
@@ -133,7 +133,7 @@ export const About: React.FC = () => {
       </motion.div>
 
       {/* Technology Stack */}
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
@@ -192,7 +192,7 @@ export const About: React.FC = () => {
             </ul>
           </div>
         </div>
-      </motion.div>
+      </motion.div> */}
 
       {/* Benefits */}
       <motion.div
@@ -219,7 +219,7 @@ export const About: React.FC = () => {
       </motion.div>
 
       {/* Call to Action */}
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
@@ -238,7 +238,7 @@ export const About: React.FC = () => {
             Contact Sales
           </button>
         </div>
-      </motion.div>
+      </motion.div> */}
     </div>
   );
 };
