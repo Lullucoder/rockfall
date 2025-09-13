@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
-import { summarizeAlerts, summarizeSensorData, summarizeImage } from '../ai/geminiService';
+import { summarizeAlerts, summarizeSensorData, summarizeImage, comprehensiveRiskAnalysis } from '../ai/geminiService';
 
 interface UseGeminiSummaryOptions {
-  mode: 'alerts' | 'sensors' | 'image';
+  mode: 'alerts' | 'sensors' | 'image' | 'comprehensive';
 }
 
 export function useGeminiSummary({ mode }: UseGeminiSummaryOptions) {
@@ -19,8 +19,11 @@ export function useGeminiSummary({ mode }: UseGeminiSummaryOptions) {
         text = await summarizeAlerts(data);
       } else if (mode === 'sensors') {
         text = await summarizeSensorData(data.series, data.risk);
-      } else {
+      } else if (mode === 'image') {
         text = await summarizeImage(extra.file);
+      } else {
+        // comprehensive
+        text = await comprehensiveRiskAnalysis(data);
       }
       setSummary(text);
     } catch (e: any) {

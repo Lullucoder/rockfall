@@ -1,12 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Layout } from './components/Layout';
+import { SimpleLayout } from './components/SimpleLayout';
 import { Landing } from './pages/Landing';
-import { Dashboard } from './pages/Dashboard';
-import { Analytics } from './pages/Analytics';
+import { UnifiedDashboard } from './components/UnifiedDashboard';
 import { About } from './pages/About';
-import { Team } from './pages/Team';
-import { Contact } from './pages/Contact';
-import { AIRiskAssessment } from './pages/AIRiskAssessment';
 
 function App() {
   return (
@@ -14,12 +10,8 @@ function App() {
       <div className="min-h-screen bg-gray-50">
         <Routes>
           <Route path="/" element={<Landing />} />
-          <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-          <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
-          <Route path="/ai-assessment" element={<Layout><AIRiskAssessment /></Layout>} />
-          <Route path="/about" element={<Layout><About /></Layout>} />
-          <Route path="/team" element={<Layout><Team /></Layout>} />
-          <Route path="/contact" element={<Layout><Contact /></Layout>} />
+          <Route path="/dashboard" element={<SimpleLayout><UnifiedDashboard /></SimpleLayout>} />
+          <Route path="/about" element={<SimpleLayout><About /></SimpleLayout>} />
         </Routes>
       </div>
     </Router>

@@ -231,7 +231,7 @@ export const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Overall Risk Score</p>
-              <p className="text-2xl font-bold text-navy-600">{overallStats.overallRiskScore}</p>
+              <p className="text-2xl font-bold text-navy-600">{overallStats.overallRiskScore.toFixed(3)}</p>
             </div>
             <RiskGauge value={overallStats.overallRiskScore} size="small" />
           </div>
@@ -534,7 +534,7 @@ export const Dashboard: React.FC = () => {
                       id: `alert-${section.id}`,
                       zone_id: section.id,
                       zone_name: `${terrain.name} - ${section.name}`,
-                      severity: section.riskLevel === 'critical' ? 'critical' : 'high',
+                      severity: (section.riskLevel === 'critical' ? 'critical' : 'high') as 'critical' | 'high',
                       status: 'active' as const,
                       message: `${section.riskLevel === 'critical' ? 'Critical' : 'High'} risk detected in ${section.name}: displacement ${section.sensorData.displacement.toFixed(2)}mm, stability ${(section.properties.stability * 100).toFixed(1)}%`,
                       risk_probability: section.riskScore / 10,

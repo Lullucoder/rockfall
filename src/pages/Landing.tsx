@@ -21,11 +21,6 @@ export const Landing: React.FC = () => {
           </div>
           <div className="hidden md:flex items-center space-x-8">
             <Link to="/about" className="text-gray-300 hover:text-white transition-colors">About</Link>
-            {/* <Link to="/team" className="text-gray-300 hover:text-white transition-colors">Team</Link> */}
-            <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">Contact</Link>
-            {/*<Link to="/dashboard" className="btn-primary">
-              Open Dashboard
-            </Link>*/}
           </div>
         </nav>
       </header>
@@ -327,7 +322,10 @@ export const Landing: React.FC = () => {
           >
           </motion.div>
         </div>
-        <div class="max-w-4xl mx-auto text-center"><h2 class="text-4xl font-bold text-white mb-6">Made with ❤️ by</h2><p class="text-xl text-gray-300">Amit, Suhani, Mudra, Prashant, Sohan, Reiyan</p></div>
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold text-white mb-6">Made with ❤️ by</h2>
+            <p className="text-xl text-gray-300">Amit, Suhani, Mudra, Prashant, Sohan, Reiyan</p>
+        </div>
       </section>
 
       {/* Footer */}

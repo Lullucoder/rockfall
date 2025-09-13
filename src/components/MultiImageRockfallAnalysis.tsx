@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Upload, Camera, AlertTriangle, FileImage, Loader2, CheckCircle, X, Download, Copy, Eye, FileText } from 'lucide-react';
 import { analyzeMultipleImages, analyzeRockfallRisk } from '../ai/geminiService';
 import { EnhancedReportGenerator } from './EnhancedReportGenerator';
@@ -48,27 +48,26 @@ export const MultiImageRockfallAnalysis: React.FC<MultiImageAnalysisProps> = ({ 
     setImages(prev => prev.filter(img => img.id !== id));
   };
 
+  const inFlightRef = useRef(false);
   const handleAnalyze = async () => {
-    if (images.length === 0) return;
-    
+    if (images.length === 0 || inFlightRef.current) return;
+    inFlightRef.current = true;
     setLoading(true);
     setError(null);
-    
     try {
       let result: string;
-      
       if (images.length === 1) {
         result = await analyzeRockfallRisk(images[0].file, analysisType);
       } else {
         result = await analyzeMultipleImages(images.map(img => img.file), analysisType);
       }
-      
       setAnalysis(result);
       onAnalysisComplete?.(result);
     } catch (err: any) {
       setError(err.message || 'Analysis failed');
     } finally {
       setLoading(false);
+      inFlightRef.current = false;
     }
   };
 

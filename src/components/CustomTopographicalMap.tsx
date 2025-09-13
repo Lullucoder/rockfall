@@ -114,10 +114,11 @@ const generateNonOverlappingSectionCenters = (centerPoint: LatLng, sectionCount:
   const maxAttempts = 50; // Prevent infinite loops
   
   for (let i = 0; i < sectionCount; i++) {
-    let validPosition = false;
-    let attempts = 0;
-    let sectionCenter: LatLng;
-    let sectionRadius: number;
+  let validPosition = false;
+  let attempts = 0;
+  // Initialize with center defaults to satisfy definite assignment checks; real values set in loop
+  let sectionCenter: LatLng = new LatLng(centerPoint.lat, centerPoint.lng);
+  let sectionRadius: number = 0.0005;
     
     while (!validPosition && attempts < maxAttempts) {
       // Calculate position using polar coordinates to distribute sections more evenly

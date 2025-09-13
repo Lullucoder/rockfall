@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Upload, Camera, AlertTriangle, FileImage, Loader2, CheckCircle } from 'lucide-react';
 import { analyzeRockfallRisk } from '../ai/geminiService';
 
@@ -7,12 +7,23 @@ interface RockfallImageAnalysisProps {
 }
 
 export const RockfallImageAnalysis: React.FC<RockfallImageAnalysisProps> = ({ onAnalysisComplete }) => {
+  function formatAge(ts: number) {
+    const ageMs = Date.now() - ts;
+    const mins = Math.floor(ageMs / 60000);
+    if (mins < 1) return '<1m ago';
+    if (mins < 60) return mins + 'm ago';
+    const hrs = Math.floor(mins / 60);
+    return hrs + 'h ago';
+  }
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [analysisType, setAnalysisType] = useState<'detailed' | 'quick'>('detailed');
+
+  const [usedCache, setUsedCache] = useState(false);
+  const [lastTimestamp, setLastTimestamp] = useState<number | null>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -25,25 +36,40 @@ export const RockfallImageAnalysis: React.FC<RockfallImageAnalysisProps> = ({ on
       const reader = new FileReader();
       reader.onload = (e) => setPreview(e.target?.result as string);
       reader.readAsDataURL(selectedFile);
+      setUsedCache(false);
     }
   };
 
-  const handleAnalyze = async () => {
-    if (!file) return;
-    
+  const inFlightRef = useRef(false);
+  const handleAnalyze = async (opts?: { force?: boolean }) => {
+    if (!file || inFlightRef.current) return;
+    inFlightRef.current = true;
     setLoading(true);
     setError(null);
-    
+    const start = performance.now();
     try {
-  const result = await analyzeRockfallRisk(file, analysisType);
+      const result = await analyzeRockfallRisk(file, analysisType, { force: opts?.force });
       setAnalysis(result);
+      const elapsed = performance.now() - start;
+      if (elapsed < 200 && !opts?.force) setUsedCache(true);
+      else setUsedCache(false);
+      setLastTimestamp(Date.now());
       onAnalysisComplete?.(result);
     } catch (err: any) {
       setError(err.message || 'Analysis failed');
     } finally {
       setLoading(false);
+      inFlightRef.current = false;
     }
   };
+
+  // Auto-run when file chosen
+  useEffect(() => {
+    if (file) {
+      handleAnalyze();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file, analysisType]);
 
   const getRiskLevel = (text: string): string => {
     const upper = text.toLowerCase();
@@ -138,23 +164,36 @@ export const RockfallImageAnalysis: React.FC<RockfallImageAnalysisProps> = ({ on
             </div>
           </div>
           
-          <button
-            onClick={handleAnalyze}
-            disabled={loading}
-            className="w-full py-3 px-4 bg-navy-600 text-white rounded-lg hover:bg-navy-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Analyzing... ({analysisType === 'detailed' ? 'Detailed' : 'Quick'} Mode)</span>
-              </>
-            ) : (
-              <>
-                <FileImage className="w-4 h-4" />
-                <span>Analyze Rockfall Risk</span>
-              </>
-            )}
-          </button>
+          <div className="flex flex-col space-y-2">
+            <button
+              onClick={() => handleAnalyze()}
+              disabled={loading}
+              className="w-full py-3 px-4 bg-navy-600 text-white rounded-lg hover:bg-navy-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Analyzing... ({analysisType === 'detailed' ? 'Detailed' : 'Quick'} Mode)</span>
+                </>
+              ) : (
+                <>
+                  <FileImage className="w-4 h-4" />
+                  <span>{analysis ? 'Re-Analyze' : 'Analyze Rockfall Risk'}</span>
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => handleAnalyze({ force: true })}
+              disabled={loading || !analysis}
+              className="w-full py-2 px-4 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            >
+              {loading ? '...' : 'Force Fresh'}
+            </button>
+            <div className="flex items-center justify-between text-[10px] text-gray-400">
+              {usedCache && analysis && !loading && <span>(cached)</span>}
+              {lastTimestamp && !loading && <span>{formatAge(lastTimestamp)}</span>}
+            </div>
+          </div>
         </div>
       )}
 

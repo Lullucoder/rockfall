@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, Settings, User, Search, Menu, X } from 'lucide-react';
+import { Bell, Search, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface HeaderProps {

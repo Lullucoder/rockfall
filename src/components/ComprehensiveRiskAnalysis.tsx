@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useGeminiSummary } from '../hooks/useGeminiSummary';
 import { Brain, Thermometer, Cloud, Activity, FileText, Loader2, AlertTriangle } from 'lucide-react';
 import { comprehensiveRiskAnalysis } from '../ai/geminiService';
 
@@ -38,6 +39,8 @@ export const ComprehensiveRiskAnalysis: React.FC<ComprehensiveRiskAnalysisProps>
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // AI summary (comprehensive) integration
+  const { loading: summaryLoading, summary: comprehensiveSummary, error: summaryError, generate: generateComprehensive } = useGeminiSummary({ mode: 'comprehensive' });
 
   const [mockSensorData, setMockSensorData] = useState<any[]>([]);
 
@@ -65,30 +68,31 @@ export const ComprehensiveRiskAnalysis: React.FC<ComprehensiveRiskAnalysisProps>
     setAdditionalFactors(prev => ({ ...prev, [field]: value }));
   };
 
+  const buildAnalysisPayload = () => ({
+    sensorData: sensorData || mockSensorData,
+    environmentalData: {
+      ...environmentalData,
+      temperature: parseFloat(environmentalData.temperature) || 20,
+      rainfall: parseFloat(environmentalData.rainfall) || 0,
+      windSpeed: parseFloat(environmentalData.windSpeed) || 10
+    },
+    elevationData: elevationNotes ? { notes: elevationNotes } : undefined,
+    imageAnalysis: imageAnalysisResults || undefined,
+    weatherData: {
+      ...weatherData,
+      recentRain: parseFloat(weatherData.recentRain) || 0,
+      freezeThaw: parseInt(weatherData.freezeThaw) || 0
+    },
+    additionalFactors
+  });
+
   const handleAnalyze = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const analysisData = {
-        sensorData: sensorData || mockSensorData,
-        environmentalData: {
-          ...environmentalData,
-          temperature: parseFloat(environmentalData.temperature) || 20,
-          rainfall: parseFloat(environmentalData.rainfall) || 0,
-          windSpeed: parseFloat(environmentalData.windSpeed) || 10
-        },
-        elevationData: elevationNotes ? { notes: elevationNotes } : undefined,
-        imageAnalysis: imageAnalysisResults || undefined,
-        weatherData: {
-          ...weatherData,
-          recentRain: parseFloat(weatherData.recentRain) || 0,
-          freezeThaw: parseInt(weatherData.freezeThaw) || 0
-        },
-        additionalFactors
-      };
-
-  const result = await comprehensiveRiskAnalysis(analysisData);
+      const analysisData = buildAnalysisPayload();
+      const result = await comprehensiveRiskAnalysis(analysisData);
       setAnalysis(result);
       onAnalysisComplete?.(result);
     } catch (err: any) {
@@ -96,6 +100,11 @@ export const ComprehensiveRiskAnalysis: React.FC<ComprehensiveRiskAnalysisProps>
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGenerateSummary = () => {
+    const payload = buildAnalysisPayload();
+    generateComprehensive(payload);
   };
 
   const getRiskLevel = (text: string): string => {
@@ -130,6 +139,33 @@ export const ComprehensiveRiskAnalysis: React.FC<ComprehensiveRiskAnalysisProps>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* AI Comprehensive Summary Panel */}
+        <div className="space-y-4 order-last lg:order-first">
+          <div className="flex items-center space-x-2">
+            <FileText className="w-5 h-5 text-navy-600" />
+            <h4 className="font-medium text-gray-900">AI Integrated Summary</h4>
+          </div>
+          <div className="p-4 border rounded-lg bg-white shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700">Comprehensive AI Assessment</span>
+              <button
+                onClick={handleGenerateSummary}
+                disabled={summaryLoading}
+                className="text-xs px-3 py-1 rounded bg-navy-600 text-white hover:bg-navy-700 disabled:opacity-50"
+              >
+                {summaryLoading ? 'Generating...' : 'Generate'}
+              </button>
+            </div>
+            {summaryError && <div className="text-xs text-red-600">{summaryError}</div>}
+            {comprehensiveSummary ? (
+              <div className="text-xs text-gray-700 whitespace-pre-line leading-relaxed max-h-60 overflow-y-auto">
+                {comprehensiveSummary}
+              </div>
+            ) : (
+              !summaryLoading && <p className="text-xs text-gray-400">Generate an integrated multi-source risk summary.</p>
+            )}
+          </div>
+        </div>
         {/* Environmental Conditions */}
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
