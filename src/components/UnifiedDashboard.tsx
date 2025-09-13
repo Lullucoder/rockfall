@@ -473,7 +473,7 @@ const MonitorSection: React.FC<{
             </div>
           </div>
           <div className="p-6">
-            <div className="h-80 rounded-xl overflow-hidden bg-gray-50">
+            <div className="h-[500px] rounded-xl overflow-hidden bg-gray-50">
               <CustomTopographicalMap 
                 onZoneSelect={setSelectedZone}
                 onDataUpdate={updateTerrainData}

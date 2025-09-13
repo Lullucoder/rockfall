@@ -1,11 +1,32 @@
 /* Enhanced Risk Map Styles */
 
-/* Ensure map container has proper dimensions */
+/* Ensure map container has proper dimensions and scroll handling */
 .leaflet-container {
   height: 100% !important;
   width: 100% !important;
-  min-height: 300px !important;
+  min-height: 400px !important;
   z-index: 1;
+  /* Prevent page scrolling when interacting with map */
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Prevent page scroll when hovering over map */
+.leaflet-container:hover {
+  overflow: hidden;
+}
+
+/* Ensure proper scroll wheel handling within map bounds */
+.leaflet-control-zoom {
+  z-index: 1000;
+}
+
+.leaflet-top, .leaflet-bottom {
+  z-index: 1000;
 }
 
 /* Fix for map tiles loading */
@@ -80,6 +101,14 @@
 
 /* Drawing mode indicators */
 .drawing-mode-active {
+  cursor: crosshair !important;
+}
+
+.drawing-mode-active .leaflet-container {
+  cursor: crosshair !important;
+}
+
+.drawing-mode-active .leaflet-clickable {
   cursor: crosshair !important;
 }
 

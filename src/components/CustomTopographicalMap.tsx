@@ -7,7 +7,9 @@ import {
   X, 
   Target,
   Trash2,
-  Settings
+  Settings,
+  MapPin,
+  Eye
 } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 import './CustomTopographicalMap.css';
@@ -369,6 +371,7 @@ export const CustomTopographicalMap: React.FC<CustomTopographicalMapProps> = ({
   const [editingSection, setEditingSection] = useState<TerrainSection | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showNameDialog, setShowNameDialog] = useState(false);
+  const [showTerrainSitesList, setShowTerrainSitesList] = useState(false);
   const [pendingTerrainData, setPendingTerrainData] = useState<{
     location: LatLng;
     sections: TerrainSection[];
@@ -489,6 +492,64 @@ export const CustomTopographicalMap: React.FC<CustomTopographicalMapProps> = ({
     onDataUpdate(updatedMaps);
   };
 
+  const viewAllTerrainSites = () => {
+    if (!mapRef.current || terrainMaps.length === 0) return;
+
+    // Calculate bounds to include all terrain sites
+    const allCoordinates: L.LatLng[] = [];
+    
+    terrainMaps.forEach(terrainMap => {
+      // Add center point
+      allCoordinates.push(terrainMap.centerPoint);
+      
+      // Add all section coordinates for better bounds calculation
+      terrainMap.sections.forEach(section => {
+        allCoordinates.push(...section.coordinates);
+      });
+    });
+
+    if (allCoordinates.length > 0) {
+      // Create bounds from all coordinates
+      const bounds = L.latLngBounds(allCoordinates);
+      
+      // Fit map to bounds with padding
+      mapRef.current.fitBounds(bounds, {
+        padding: [50, 50], // Add padding around the bounds
+        maxZoom: 15, // Don't zoom in too much
+        animate: true,
+        duration: 1.5
+      });
+    }
+    
+    // Close dropdown after viewing
+    setShowTerrainSitesList(false);
+  };
+
+  const viewIndividualTerrainSite = (terrainMap: TerrainMap) => {
+    if (!mapRef.current) return;
+
+    // Calculate bounds for this specific terrain map
+    const allCoordinates: L.LatLng[] = [terrainMap.centerPoint];
+    
+    terrainMap.sections.forEach(section => {
+      allCoordinates.push(...section.coordinates);
+    });
+
+    if (allCoordinates.length > 0) {
+      const bounds = L.latLngBounds(allCoordinates);
+      
+      mapRef.current.fitBounds(bounds, {
+        padding: [30, 30],
+        maxZoom: 16,
+        animate: true,
+        duration: 1.0
+      });
+    }
+    
+    // Close dropdown after viewing
+    setShowTerrainSitesList(false);
+  };
+
   return (
     <div className="relative h-full w-full min-h-[400px] bg-gray-100 rounded-lg overflow-hidden">
       {/* Mode Controls */}
@@ -520,9 +581,84 @@ export const CustomTopographicalMap: React.FC<CustomTopographicalMapProps> = ({
           )}
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-2">
-          <div className="text-xs font-semibold text-gray-700 mb-2">Terrain Sites</div>
-          <div className="text-xs text-gray-600">{terrainMaps.length} sites created</div>
+        <div className="relative">
+          <motion.button
+            onClick={() => {
+              if (terrainMaps.length === 1) {
+                viewIndividualTerrainSite(terrainMaps[0]);
+              } else if (terrainMaps.length > 1) {
+                setShowTerrainSitesList(!showTerrainSitesList);
+              }
+            }}
+            onMouseEnter={() => setShowTerrainSitesList(true)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`bg-white rounded-lg shadow-lg p-3 transition-all duration-200 w-full ${
+              terrainMaps.length > 0 
+                ? 'hover:bg-blue-50 hover:shadow-xl cursor-pointer border-l-4 border-l-blue-500' 
+                : 'cursor-not-allowed opacity-60'
+            }`}
+            disabled={terrainMaps.length === 0}
+            title={
+              terrainMaps.length === 0 ? "No terrain sites created yet" :
+              terrainMaps.length === 1 ? "Click to view terrain site on map" :
+              "Click to see all sites or hover to select individual site"
+            }
+          >
+            <div className="flex items-center space-x-2 mb-1">
+              <MapPin className={`w-4 h-4 ${terrainMaps.length > 0 ? 'text-blue-600' : 'text-gray-400'}`} />
+              <div className="text-xs font-semibold text-gray-700">Terrain Sites</div>
+            </div>
+            <div className={`text-xs ${terrainMaps.length > 0 ? 'text-blue-600 font-medium' : 'text-gray-500'}`}>
+              {terrainMaps.length} sites created
+            </div>
+            {terrainMaps.length > 0 && (
+              <div className="flex items-center space-x-1 mt-2">
+                <Eye className="w-3 h-3 text-blue-500" />
+                <div className="text-xs text-blue-500">
+                  {terrainMaps.length === 1 ? 'Click to view' : 'Click for all, hover for list'}
+                </div>
+              </div>
+            )}
+          </motion.button>
+
+          {/* Dropdown for individual sites */}
+          <AnimatePresence>
+            {showTerrainSitesList && terrainMaps.length > 1 && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                onMouseLeave={() => setShowTerrainSitesList(false)}
+                className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 p-2 min-w-64 z-[1001]"
+              >
+                <div className="text-xs font-semibold text-gray-700 mb-2 px-2">Select Site to View</div>
+                <button
+                  onClick={viewAllTerrainSites}
+                  className="w-full text-left p-2 rounded-md text-sm hover:bg-blue-50 transition-colors text-blue-600 font-medium border-b border-gray-100 mb-1"
+                >
+                  🗺️ View All Sites
+                </button>
+                <div className="space-y-1 max-h-48 overflow-y-auto">
+                  {terrainMaps.map((terrainMap) => (
+                    <button
+                      key={terrainMap.id}
+                      onClick={() => viewIndividualTerrainSite(terrainMap)}
+                      className="w-full text-left p-2 rounded-md text-sm hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="font-medium text-gray-800">{terrainMap.name}</div>
+                      <div className="text-xs text-gray-500">
+                        {terrainMap.sections.length} sections • {terrainMap.metadata.criticalSections} critical
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        {terrainMap.centerPoint.lat.toFixed(4)}, {terrainMap.centerPoint.lng.toFixed(4)}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <button

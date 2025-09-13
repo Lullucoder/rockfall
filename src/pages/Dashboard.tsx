@@ -296,7 +296,7 @@ export const Dashboard: React.FC = () => {
                 <span className="sm:hidden">Live</span>
               </div>
             </div>
-            <div className="h-64 sm:h-80 lg:h-96">
+            <div className="h-80 sm:h-96 lg:h-[500px]">
               <CustomTopographicalMap 
                 onZoneSelect={(zoneId) => {
                   setSelectedZone(zoneId);

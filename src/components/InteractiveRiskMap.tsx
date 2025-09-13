@@ -99,12 +99,42 @@ const riskConfigs = {
   low: { color: '#22c55e', minRadius: 80, maxRadius: 200, label: 'Low Risk' }
 };
 
-// Component for handling map events
+// Component for handling map events and scroll management
 const MapEventHandler: React.FC<{
   drawingMode: DrawingMode;
   onMapClick: (latlng: LatLng) => void;
   onLocationSelected?: (coordinates: { lat: number; lng: number }) => void;
 }> = ({ drawingMode, onMapClick, onLocationSelected }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    // Prevent page scrolling when mouse is over map
+    const mapContainer = map.getContainer();
+    
+    const handleMouseEnter = () => {
+      document.body.style.overflow = 'hidden';
+    };
+    
+    const handleMouseLeave = () => {
+      document.body.style.overflow = 'auto';
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      e.stopPropagation();
+    };
+
+    mapContainer.addEventListener('mouseenter', handleMouseEnter);
+    mapContainer.addEventListener('mouseleave', handleMouseLeave);
+    mapContainer.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      mapContainer.removeEventListener('mouseenter', handleMouseEnter);
+      mapContainer.removeEventListener('mouseleave', handleMouseLeave);
+      mapContainer.removeEventListener('wheel', handleWheel);
+      document.body.style.overflow = 'auto';
+    };
+  }, [map]);
+
   useMapEvents({
     click: (e) => {
       if (drawingMode === 'draw') {
@@ -279,56 +309,77 @@ export const InteractiveRiskMap: React.FC<RiskMapProps> = ({ onZoneSelect, isRea
   };
 
   const createNewZone = () => {
-    if (!selectedZoneCenter || !newZoneName.trim()) return;
+    if (!selectedZoneCenter || !newZoneName.trim()) {
+      console.warn('Cannot create zone: missing center location or name');
+      return;
+    }
 
-    const newZone: CustomZone = {
-      id: `custom-zone-${Date.now()}`,
-      name: newZoneName.trim(),
-      center: { lat: selectedZoneCenter.lat, lng: selectedZoneCenter.lng },
-      contours: [
-        {
-          id: 'critical',
-          radius: 30,
-          riskLevel: 'critical',
-          riskScore: 9.2,
-          color: riskConfigs.critical.color
-        },
-        {
-          id: 'high',
-          radius: 60,
-          riskLevel: 'high',
-          riskScore: 7.5,
-          color: riskConfigs.high.color
-        },
-        {
-          id: 'medium',
-          radius: 90,
-          riskLevel: 'medium',
-          riskScore: 5.8,
-          color: riskConfigs.medium.color
-        },
-        {
-          id: 'low',
-          radius: 120,
-          riskLevel: 'low',
-          riskScore: 3.2,
-          color: riskConfigs.low.color
+    try {
+      const newZone: CustomZone = {
+        id: `custom-zone-${Date.now()}`,
+        name: newZoneName.trim(),
+        center: { lat: selectedZoneCenter.lat, lng: selectedZoneCenter.lng },
+        contours: [
+          {
+            id: 'critical',
+            radius: 30,
+            riskLevel: 'critical',
+            riskScore: 9.2,
+            color: riskConfigs.critical.color
+          },
+          {
+            id: 'high',
+            radius: 60,
+            riskLevel: 'high',
+            riskScore: 7.5,
+            color: riskConfigs.high.color
+          },
+          {
+            id: 'medium',
+            radius: 90,
+            riskLevel: 'medium',
+            riskScore: 5.8,
+            color: riskConfigs.medium.color
+          },
+          {
+            id: 'low',
+            radius: 120,
+            riskLevel: 'low',
+            riskScore: 3.2,
+            color: riskConfigs.low.color
+          }
+        ],
+        metadata: {
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         }
-      ],
-      metadata: {
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-    };
+      };
 
-    const updatedZones = [...customZones, newZone];
-    setCustomZones(updatedZones);
-    localStorage.setItem('customRiskZones', JSON.stringify(updatedZones));
-    
-    setIsZoneCreatorOpen(false);
-    setNewZoneName('');
-    setSelectedZoneCenter(null);
-    setDrawingMode('select');
+      const updatedZones = [...customZones, newZone];
+      setCustomZones(updatedZones);
+      localStorage.setItem('customRiskZones', JSON.stringify(updatedZones));
+      
+      // Center map on the newly created zone with animation
+      if (mapRef.current) {
+        setTimeout(() => {
+          mapRef.current?.setView([selectedZoneCenter.lat, selectedZoneCenter.lng], 16, {
+            animate: true,
+            duration: 1.0,
+            easeLinearity: 0.25
+          });
+        }, 300); // Small delay to ensure the zone is rendered first
+      }
+      
+      console.log('Successfully created new zone:', newZone.name);
+      
+      setIsZoneCreatorOpen(false);
+      setNewZoneName('');
+      setSelectedZoneCenter(null);
+      setDrawingMode('select');
+    } catch (error) {
+      console.error('Error creating zone:', error);
+      // Could add user-facing error message here
+    }
   };
 
   const deleteCustomZone = (zoneId: string) => {
@@ -416,7 +467,9 @@ export const InteractiveRiskMap: React.FC<RiskMapProps> = ({ onZoneSelect, isRea
   }
 
   return (
-    <div className="relative h-full w-full min-h-[300px] bg-gray-100 rounded-lg overflow-hidden">
+    <div className={`relative h-full w-full min-h-[300px] bg-gray-100 rounded-lg overflow-hidden ${
+      drawingMode === 'draw' ? 'drawing-mode-active' : ''
+    }`}>
       {/* Enhanced Map Controls */}
       <div className="absolute top-4 right-4 z-[1000] space-y-2">
         {/* Drawing Tools */}
@@ -453,9 +506,16 @@ export const InteractiveRiskMap: React.FC<RiskMapProps> = ({ onZoneSelect, isRea
           </div>
           
           {drawingMode === 'draw' && (
-            <div className="mt-2 text-xs text-gray-600 p-2 bg-blue-50 rounded">
-              Click on map to place new zone
-            </div>
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-2 text-xs text-white p-2 bg-blue-600 rounded shadow-lg"
+            >
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                <span>Click on map to add new zone</span>
+              </div>
+            </motion.div>
           )}
         </div>
 
@@ -655,6 +715,12 @@ export const InteractiveRiskMap: React.FC<RiskMapProps> = ({ onZoneSelect, isRea
         style={{ height: '100%', width: '100%', minHeight: '300px' }}
         ref={mapRef}
         key={`map-${selectedLocation.id}-${selectedLocation.coordinates.lat}-${selectedLocation.coordinates.lng}`}
+        scrollWheelZoom={true}
+        doubleClickZoom={true}
+        zoomControl={true}
+        touchZoom={true}
+        dragging={true}
+        keyboard={true}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

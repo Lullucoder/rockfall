@@ -48,6 +48,32 @@
   backdrop-filter: blur(10px);
 }
 
+/* Terrain sites dropdown */
+.terrain-sites-dropdown {
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+.terrain-sites-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.terrain-sites-dropdown::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 3px;
+}
+
+.terrain-sites-dropdown::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.terrain-sites-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
 .map-control-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
