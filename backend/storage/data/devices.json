@@ -1,0 +1,46 @@
+[
+  {
+    "id": "0d8cd7e3-0f28-49a1-83f4-5ec0a929b414",
+    "miner_id": "M001",
+    "miner_name": "Test Miner",
+    "device_type": "android",
+    "phone_number": "+12295261144",
+    "email": "rocksafe360@outlook.com",
+    "zone_assignment": "Zone-A1",
+    "preferences": {
+      "enablePushNotifications": true,
+      "enableSMS": true,
+      "enableEmail": true,
+      "enableVibration": true,
+      "minimumSeverity": "medium"
+    },
+    "network_status": "online",
+    "created_at": "2025-09-14T04:01:21.533Z",
+    "updated_at": "2025-09-14T04:01:21.533Z",
+    "is_active": true
+  },
+  {
+    "id": "eb16ad4e-6681-46df-bb8a-6ad0822d6193",
+    "miner_id": "M1",
+    "miner_name": "Prashant",
+    "device_type": "android",
+    "phone_number": "+917348493952",
+    "email": "prashantcoc678@gmail.com",
+    "zone_assignment": "Zone 1",
+    "preferences": {
+      "enablePushNotifications": true,
+      "enableSMS": true,
+      "enableEmail": true,
+      "enableVibration": true,
+      "quietHours": {
+        "start": "22:00",
+        "end": "06:00"
+      },
+      "minimumSeverity": "medium"
+    },
+    "network_status": "online",
+    "created_at": "2025-09-14T04:05:12.592Z",
+    "updated_at": "2025-09-14T04:05:12.592Z",
+    "is_active": true
+  }
+]

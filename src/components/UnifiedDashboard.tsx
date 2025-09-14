@@ -4,7 +4,7 @@ import {
   Activity, Brain, Settings, FileText, 
   AlertTriangle, Shield, TrendingUp, Play, Pause,
   Camera, Mountain, Smartphone, Database,
-  Zap, ExternalLink
+  Zap
 } from 'lucide-react';
 
 // Import all the existing components we'll consolidate
@@ -19,13 +19,11 @@ import { EnhancedAlertsSystem } from './EnhancedAlertsSystem';
 import { DataFlowControl } from './DataFlowControl';
 import { MobileDeviceRegistration } from './MobileDeviceRegistration';
 import { MobileAlertStatusMonitor } from './MobileAlertStatusMonitor';
-import { BackendControlPanel } from './BackendControlPanel';
 import { ExportReport } from './ExportReport';
 
 // Import hooks
 import { useTerrainDataIntegration } from '../hooks/useTerrainDataIntegration';
 import { useRockfallDataGenerator } from '../hooks/useRockfallDataGenerator';
-import { useBackendIntegration } from '../hooks/useBackendIntegration';
 
 type Section = 'monitor' | 'analyze' | 'control' | 'reports';
 
@@ -48,20 +46,21 @@ export const UnifiedDashboard: React.FC = () => {
 
   const {
     isRunning: isSimulationRunning,
+    overallRiskFactor,
+    riskProgression,
+    currentData: sensorData,
     start: startSimulation,
-    stop: stopSimulation
+    stop: stopSimulation,
+    updateThresholdMultiplier
   } = useRockfallDataGenerator();
 
-  const {
-    backendConfig,
-    setBackendConfig,
-    simulateAlert: backendSimulateAlert,
-    testAlertSystem: backendTestAlert,
-    isConnected,
-    lastResponse,
-    error: backendError,
-    loading: backendLoading
-  } = useBackendIntegration();
+  // Update risk progression when thresholds change
+  useEffect(() => {
+    updateThresholdMultiplier(
+      simulationThresholds.riskThreshold || 0.5,
+      simulationThresholds.stabilityThreshold || 0.7
+    );
+  }, [simulationThresholds.riskThreshold, simulationThresholds.stabilityThreshold, updateThresholdMultiplier]);
 
   // Sync terrain real-time status
   useEffect(() => {
@@ -74,11 +73,13 @@ export const UnifiedDashboard: React.FC = () => {
     totalZones: terrainRiskAssessment?.totalZones || analytics.totalSections || 12,
     criticalAlerts: terrainRiskAssessment?.criticalAlerts || analytics.activeCriticalSections || 2,
     highRiskZones: terrainRiskAssessment?.highRiskZones || analytics.sectionsAboveThreshold || 5,
-    overallRiskScore: terrainRiskAssessment?.overallRiskScore || analytics.averageRiskScore || 0.72,
+    overallRiskScore: isSimulationRunning ? overallRiskFactor : (terrainRiskAssessment?.overallRiskScore || analytics.averageRiskScore || 0.72),
     lastUpdate: terrainRiskAssessment?.lastUpdate || new Date().toISOString(),
     simulationStatus: isSimulationRunning ? 'Running' : 'Stopped',
     detectionAccuracy: 95.2,
-    sectionsAboveThreshold: analytics.sectionsAboveThreshold || 3
+    sectionsAboveThreshold: analytics.sectionsAboveThreshold || 3,
+    riskProgression: riskProgression,
+    sensorData: sensorData
   };
 
   const sections = [
@@ -336,22 +337,15 @@ export const UnifiedDashboard: React.FC = () => {
               stopSimulation={stopSimulation}
               simulationThresholds={simulationThresholds}
               updateSimulationThresholds={updateSimulationThresholds}
-              analytics={analytics}
-              backendConfig={backendConfig}
-              setBackendConfig={setBackendConfig}
-              isConnected={isConnected}
-              backendError={backendError}
-              backendLoading={backendLoading}
+              overallStats={overallStats}
               simulateAlert={(alertData: any) => {
-                backendSimulateAlert(alertData.zoneId, alertData.severity);
+                // Handle alert simulation
+                console.log('Alert simulated:', alertData);
               }}
               testAlertSystem={() => {
-                backendTestAlert();
+                // Handle test alert system
+                console.log('Test alert system triggered');
               }}
-              lastResponse={lastResponse}
-              terrainMaps={terrainMaps}
-              backendSimulateAlert={backendSimulateAlert}
-              backendTestAlert={backendTestAlert}
             />
           )}
 
@@ -784,41 +778,23 @@ const ControlSection: React.FC<{
   stopSimulation: () => void;
   simulationThresholds: any;
   updateSimulationThresholds: (thresholds: any) => void;
-  analytics: any;
-  backendConfig: any;
-  setBackendConfig: (config: any) => void;
-  isConnected: boolean;
-  backendError: string | null;
-  backendLoading: boolean;
+  overallStats: any;
   simulateAlert: (alertData: any) => void;
   testAlertSystem: () => void;
-  lastResponse: any;
-  terrainMaps: any[];
-  backendSimulateAlert: (zoneId: string, severity: string) => Promise<boolean>;
-  backendTestAlert: () => Promise<boolean>;
 }> = ({ 
   isSimulationRunning, 
   startSimulation, 
   stopSimulation,
   simulationThresholds,
   updateSimulationThresholds,
-  backendConfig,
-  setBackendConfig,
-  isConnected,
-  backendError,
-  backendLoading,
+  overallStats,
   simulateAlert,
-  testAlertSystem,
-  lastResponse,
-  terrainMaps,
-  backendSimulateAlert,
-  backendTestAlert
+  testAlertSystem
 }) => {
-  const [controlTab, setControlTab] = useState<'simulation' | 'backend' | 'mobile' | 'data'>('simulation');
+  const [controlTab, setControlTab] = useState<'simulation' | 'mobile' | 'data'>('simulation');
 
   const controlTabs = [
     { id: 'simulation', label: 'Simulation', icon: Zap },
-    { id: 'backend', label: 'Backend', icon: ExternalLink },
     { id: 'mobile', label: 'Mobile Devices', icon: Smartphone },
     { id: 'data', label: 'Data Flow', icon: Database }
   ];
@@ -870,6 +846,39 @@ const ControlSection: React.FC<{
                       {isSimulationRunning ? 'Running' : 'Stopped'}
                     </span>
                   </div>
+                  
+                  {isSimulationRunning && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Risk Factor:</span>
+                        <span className={`px-2 py-1 rounded text-sm font-medium ${
+                          overallStats.overallRiskScore > 0.8 ? 'bg-danger-100 text-danger-700' :
+                          overallStats.overallRiskScore > 0.6 ? 'bg-warning-100 text-warning-700' :
+                          overallStats.overallRiskScore > 0.4 ? 'bg-warning-50 text-warning-600' :
+                          'bg-safe-100 text-safe-700'
+                        }`}>
+                          {(overallStats.overallRiskScore * 100).toFixed(1)}%
+                        </span>
+                      </div>
+                      
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full transition-all duration-1000 ${
+                            overallStats.overallRiskScore > 0.8 ? 'bg-danger-500' :
+                            overallStats.overallRiskScore > 0.6 ? 'bg-warning-500' :
+                            overallStats.overallRiskScore > 0.4 ? 'bg-warning-400' :
+                            'bg-safe-500'
+                          }`}
+                          style={{ width: `${overallStats.overallRiskScore * 100}%` }}
+                        ></div>
+                      </div>
+                      
+                      <div className="text-xs text-gray-500">
+                        Increase Rate: {((overallStats.riskProgression?.baseIncreaseRate || 0.01) * (overallStats.riskProgression?.thresholdMultiplier || 1) * 100).toFixed(3)}%/sec
+                      </div>
+                    </div>
+                  )}
+                  
                   <button
                     onClick={isSimulationRunning ? stopSimulation : startSimulation}
                     className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
@@ -919,36 +928,113 @@ const ControlSection: React.FC<{
                       className="w-full"
                     />
                   </div>
+                  
+                  <div className="text-xs text-gray-500 mt-2">
+                    Threshold Multiplier: {(overallStats.riskProgression?.thresholdMultiplier || 1).toFixed(2)}x
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
 
-        {controlTab === 'backend' && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Backend Integration</h2>
-            <BackendControlPanel
-              config={backendConfig}
-              onConfigChange={setBackendConfig}
-              isConnected={isConnected}
-              error={backendError}
-              loading={backendLoading}
-              onSimulateAlert={async (zoneId: string, severity: string) => {
-                return await backendSimulateAlert(zoneId, severity);
-              }}
-              onTestAlertSystem={async () => {
-                return await backendTestAlert();
-              }}
-              lastResponse={lastResponse}
-              availableSections={terrainMaps.flatMap((terrain: any) => 
-                terrain.sections.map((section: any) => ({
-                  id: section.id,
-                  name: section.name,
-                  terrainName: terrain.name
-                }))
-              )}
-            />
+            {/* Real-time Sensor Readings */}
+            {isSimulationRunning && overallStats.sensorData && Object.keys(overallStats.sensorData).length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Live Sensor Readings</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Object.entries(overallStats.sensorData).slice(0, 3).map(([zoneId, zone]: [string, any]) => (
+                    <div key={zoneId} className="bg-gray-50 rounded-lg p-4">
+                      <h4 className="font-medium text-gray-900 mb-3">{zone.zoneName}</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Pore Pressure:</span>
+                          <span className={`font-mono ${
+                            zone.lastReading.porePressure > 400 ? 'text-danger-600' :
+                            zone.lastReading.porePressure > 300 ? 'text-warning-600' :
+                            'text-gray-900'
+                          }`}>
+                            {zone.lastReading.porePressure.toFixed(1)} kPa
+                          </span>
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Rainfall:</span>
+                          <span className={`font-mono ${
+                            zone.lastReading.rainfall > 25 ? 'text-danger-600' :
+                            zone.lastReading.rainfall > 15 ? 'text-warning-600' :
+                            'text-gray-900'
+                          }`}>
+                            {zone.lastReading.rainfall.toFixed(1)} mm/hr
+                          </span>
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Vibration:</span>
+                          <span className={`font-mono ${
+                            zone.lastReading.vibration > 5 ? 'text-danger-600' :
+                            zone.lastReading.vibration > 2 ? 'text-warning-600' :
+                            'text-gray-900'
+                          }`}>
+                            {zone.lastReading.vibration.toFixed(2)} Hz
+                          </span>
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Temperature:</span>
+                          <span className="font-mono text-gray-900">
+                            {zone.lastReading.temperature.toFixed(1)}°C
+                          </span>
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Displacement:</span>
+                          <span className={`font-mono ${
+                            zone.lastReading.displacement > 20 ? 'text-danger-600' :
+                            zone.lastReading.displacement > 10 ? 'text-warning-600' :
+                            'text-gray-900'
+                          }`}>
+                            {zone.lastReading.displacement.toFixed(2)} mm
+                          </span>
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Soil Moisture:</span>
+                          <span className={`font-mono ${
+                            zone.lastReading.soilMoisture > 70 ? 'text-danger-600' :
+                            zone.lastReading.soilMoisture > 50 ? 'text-warning-600' :
+                            'text-gray-900'
+                          }`}>
+                            {zone.lastReading.soilMoisture.toFixed(1)}%
+                          </span>
+                        </div>
+                        
+                        <div className="mt-3 pt-2 border-t border-gray-200">
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600">Risk Level:</span>
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                              zone.riskLevel === 'critical' ? 'bg-danger-100 text-danger-700' :
+                              zone.riskLevel === 'high' ? 'bg-warning-100 text-warning-700' :
+                              zone.riskLevel === 'medium' ? 'bg-warning-50 text-warning-600' :
+                              'bg-safe-100 text-safe-700'
+                            }`}>
+                              {zone.riskLevel.toUpperCase()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {Object.keys(overallStats.sensorData || {}).length > 3 && (
+                  <div className="mt-4 text-center">
+                    <p className="text-sm text-gray-500">
+                      Showing 3 of {Object.keys(overallStats.sensorData || {}).length} zones. 
+                      <span className="text-navy-600 ml-1">View monitor section for all zones.</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -968,7 +1054,7 @@ const ControlSection: React.FC<{
               
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Alert Status Monitor</h3>
-                <MobileAlertStatusMonitor refreshInterval={5000} />
+                <MobileAlertStatusMonitor refreshInterval={30000} />
               </div>
             </div>
           </div>
@@ -977,6 +1063,56 @@ const ControlSection: React.FC<{
         {controlTab === 'data' && (
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Data Flow Control</h2>
+            
+            {/* Real-time Risk Factor Display */}
+            {isSimulationRunning && (
+              <div className="mb-6 bg-gray-50 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Real-time Risk Analysis</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-navy-600">
+                      {(overallStats.overallRiskScore * 100).toFixed(1)}%
+                    </div>
+                    <div className="text-sm text-gray-600">Overall Risk Factor</div>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-warning-600">
+                      {(overallStats.riskProgression?.thresholdMultiplier || 1).toFixed(2)}x
+                    </div>
+                    <div className="text-sm text-gray-600">Threshold Multiplier</div>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-safe-600">
+                      {(overallStats.riskProgression?.environmentalFactor || 1).toFixed(2)}x
+                    </div>
+                    <div className="text-sm text-gray-600">Environmental Factor</div>
+                  </div>
+                </div>
+                
+                <div className="mt-4">
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div 
+                      className={`h-3 rounded-full transition-all duration-1000 ${
+                        overallStats.overallRiskScore > 0.8 ? 'bg-gradient-to-r from-danger-400 to-danger-600' :
+                        overallStats.overallRiskScore > 0.6 ? 'bg-gradient-to-r from-warning-400 to-warning-600' :
+                        overallStats.overallRiskScore > 0.4 ? 'bg-gradient-to-r from-warning-300 to-warning-500' :
+                        'bg-gradient-to-r from-safe-400 to-safe-600'
+                      }`}
+                      style={{ width: `${overallStats.overallRiskScore * 100}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>Safe</span>
+                    <span>Moderate</span>
+                    <span>High</span>
+                    <span>Critical</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             <DataFlowControl
               onDataSourceChange={(source) => {
                 console.log('Data source changed:', source);

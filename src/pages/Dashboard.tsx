@@ -15,17 +15,14 @@ import { AlertManagementSystem } from '../components/AlertManagementSystem';
 import { DataImportAnalysis } from '../components/DataImportAnalysis';
 import { MobileDeviceRegistration } from '../components/MobileDeviceRegistration';
 import { MobileAlertStatusMonitor } from '../components/MobileAlertStatusMonitor';
-import { BackendControlPanel } from '../components/BackendControlPanel';
-import { PushNotificationSetup } from '../components/PushNotificationSetup';
 import { useRockfallDataGenerator } from '../hooks/useRockfallDataGenerator';
 import { useEnhancedRockfallDetector } from '../hooks/useEnhancedRockfallDetector';
-import { useBackendIntegration } from '../hooks/useBackendIntegration';
 import { Link } from 'react-router-dom';
 
 export const Dashboard: React.FC = () => {
   const [isRealTimeActive, setIsRealTimeActive] = useState(true);
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'analysis' | 'alerts' | 'reports' | 'simulation' | 'import' | 'mobile-devices' | 'mobile-status' | 'backend'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'analysis' | 'alerts' | 'reports' | 'simulation' | 'import' | 'mobile-devices' | 'mobile-status'>('overview');
 
   // Initialize terrain data integration
   const {
@@ -53,19 +50,6 @@ export const Dashboard: React.FC = () => {
     isEnabled: isDetectionEnabled
   } = useEnhancedRockfallDetector();
 
-  // Backend integration
-  const {
-    backendConfig,
-    setBackendConfig,
-    sendRiskAssessment,
-    simulateAlert,
-    testAlertSystem,
-    isConnected,
-    lastResponse,
-    error: backendError,
-    loading: backendLoading
-  } = useBackendIntegration();
-
   // Use simulation data when available, otherwise use mock data
   const currentZoneData = simulationData && Object.keys(simulationData).length > 0 ? simulationData : null;
 
@@ -74,18 +58,6 @@ export const Dashboard: React.FC = () => {
       runPrediction(currentZoneData);
     }
   }, [currentZoneData, runPrediction, isDetectionEnabled]);
-
-  // Send risk assessment to backend when predictions are updated
-  useEffect(() => {
-    if (predictions && currentZoneData && backendConfig.enabled) {
-      const riskScores = Object.fromEntries(
-        Object.entries(predictions).map(([zone, pred]) => [zone, pred.riskScore])
-      );
-      
-      // Send to backend for automatic alert processing
-      sendRiskAssessment(currentZoneData, riskScores);
-    }
-  }, [predictions, currentZoneData, backendConfig.enabled, sendRiskAssessment]);
 
   // Sync terrain real-time status with overall real-time status
   useEffect(() => {
@@ -253,7 +225,6 @@ export const Dashboard: React.FC = () => {
             { key: 'alerts', label: 'Alerts', icon: AlertTriangle },
             { key: 'mobile-devices', label: 'Mobile Devices', icon: Smartphone },
             { key: 'mobile-status', label: 'Alert Status', icon: Activity },
-            { key: 'backend', label: 'Backend', icon: ExternalLink },
             { key: 'import', label: 'Data Import', icon: Database },
             { key: 'reports', label: 'Reports', icon: FileText }
           ].map(({ key, label, icon: Icon }) => (
@@ -852,44 +823,6 @@ export const Dashboard: React.FC = () => {
           className="space-y-6"
         >
           <MobileAlertStatusMonitor refreshInterval={5000} />
-        </motion.div>
-      )}
-
-      {/* Backend Integration Tab */}
-      {activeTab === 'backend' && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
-          <BackendControlPanel
-            config={backendConfig}
-            onConfigChange={setBackendConfig}
-            isConnected={isConnected}
-            error={backendError}
-            loading={backendLoading}
-            onSimulateAlert={simulateAlert}
-            onTestAlertSystem={testAlertSystem}
-            lastResponse={lastResponse}
-            availableSections={terrainMaps.flatMap(terrain => 
-              terrain.sections.map(section => ({
-                id: section.id,
-                name: section.name,
-                terrainName: terrain.name
-              }))
-            )}
-          />
-          {backendConfig.enabled && (
-            <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">Browser Push Registration</h4>
-              <p className="text-xs text-gray-500 mb-3">Enable this browser tab to receive vibration + push alerts without SMS cost.</p>
-              {/* For now deviceId not linked; later can map to a registered miner device */}
-              <PushNotificationSetup
-                backendUrl={backendConfig.baseUrl}
-                apiKey={backendConfig.apiKey}
-              />
-            </div>
-          )}
         </motion.div>
       )}
 

@@ -341,11 +341,20 @@ export const useRockfallDataGenerator = () => {
   const [generator] = useState(() => new RockfallDataGenerator());
   const [isRunning, setIsRunning] = useState(false);
   const [currentData, setCurrentData] = useState<Record<string, ZoneData>>({});
+  const [overallRiskFactor, setOverallRiskFactor] = useState(0.35); // Starting risk factor
   const [simulationParams, setSimulationParams] = useState<SimulationParams>({
     speed: 1,
     quality: 'medium',
     noiseLevel: 'realistic',
     scenarioType: 'normal'
+  });
+
+  // Risk factor progression based on thresholds and simulation state
+  const [riskProgression, setRiskProgression] = useState({
+    baseIncreaseRate: 0.01, // Base increase per second
+    thresholdMultiplier: 1.0, // Multiplier based on thresholds
+    environmentalFactor: 1.0, // Factor based on environmental conditions
+    lastUpdate: Date.now()
   });
 
   const generateData = useCallback(() => {
@@ -359,7 +368,53 @@ export const useRockfallDataGenerator = () => {
     });
 
     setCurrentData(newData);
-  }, [generator, isRunning, simulationParams]);
+
+    // Update overall risk factor dynamically
+    const now = Date.now();
+    const timeDelta = (now - riskProgression.lastUpdate) / 1000; // Convert to seconds
+    
+    if (timeDelta >= 1) { // Update every second
+      setOverallRiskFactor(prevRisk => {
+        // Calculate environmental stress from sensor data
+        const avgPorePressure = zones.reduce((sum, zoneId) => {
+          const zone = newData[zoneId];
+          return sum + (zone?.lastReading?.porePressure || 0);
+        }, 0) / zones.length;
+
+        const avgRainfall = zones.reduce((sum, zoneId) => {
+          const zone = newData[zoneId];
+          return sum + (zone?.lastReading?.rainfall || 0);
+        }, 0) / zones.length;
+
+        const avgVibration = zones.reduce((sum, zoneId) => {
+          const zone = newData[zoneId];
+          return sum + (zone?.lastReading?.vibration || 0);
+        }, 0) / zones.length;
+
+        // Environmental stress multiplier (1.0 - 3.0)
+        const environmentalStress = 1 + (avgRainfall / 100) + (avgPorePressure / 500) + (avgVibration / 20);
+        
+        // Risk increase calculation
+        const baseIncrease = riskProgression.baseIncreaseRate * simulationParams.speed;
+        const thresholdBonus = riskProgression.thresholdMultiplier - 1.0;
+        const environmentalBonus = (environmentalStress - 1.0) * 0.5;
+        
+        const totalIncrease = baseIncrease + (baseIncrease * thresholdBonus) + (baseIncrease * environmentalBonus);
+        
+        // Clamp risk factor between 0 and 1
+        return Math.min(1.0, Math.max(0, prevRisk + totalIncrease));
+      });
+
+      setRiskProgression(prev => ({
+        ...prev,
+        environmentalFactor: Math.min(3.0, 1 + (zones.reduce((sum, zoneId) => {
+          const zone = newData[zoneId];
+          return sum + (zone?.lastReading?.rainfall || 0);
+        }, 0) / zones.length) / 50),
+        lastUpdate: now
+      }));
+    }
+  }, [generator, isRunning, simulationParams, riskProgression.lastUpdate, riskProgression.baseIncreaseRate, riskProgression.thresholdMultiplier]);
 
   useEffect(() => {
     if (!isRunning) return;
@@ -370,6 +425,7 @@ export const useRockfallDataGenerator = () => {
 
   const start = useCallback(() => {
     setIsRunning(true);
+    setRiskProgression(prev => ({ ...prev, lastUpdate: Date.now() }));
   }, []);
 
   const stop = useCallback(() => {
@@ -379,24 +435,45 @@ export const useRockfallDataGenerator = () => {
   const reset = useCallback(() => {
     generator.resetSimulation();
     setCurrentData({});
+    setOverallRiskFactor(0.35); // Reset to initial value
+    setRiskProgression({
+      baseIncreaseRate: 0.01,
+      thresholdMultiplier: 1.0,
+      environmentalFactor: 1.0,
+      lastUpdate: Date.now()
+    });
   }, [generator]);
 
   const triggerEmergency = useCallback(() => {
     generator.triggerEmergencyScenario();
+    setOverallRiskFactor(prev => Math.min(1.0, prev + 0.3)); // Immediate risk spike
   }, [generator]);
 
   const updateParams = useCallback((newParams: Partial<SimulationParams>) => {
     setSimulationParams(prev => ({ ...prev, ...newParams }));
   }, []);
 
+  // Update risk progression based on external thresholds
+  const updateThresholdMultiplier = useCallback((riskThreshold: number, stabilityThreshold: number) => {
+    const thresholdFactor = (riskThreshold * 2) + ((1 - stabilityThreshold) * 2);
+    setRiskProgression(prev => ({
+      ...prev,
+      thresholdMultiplier: Math.max(0.5, Math.min(4.0, thresholdFactor)),
+      baseIncreaseRate: 0.005 + (riskThreshold * 0.02) // Higher thresholds = faster risk increase
+    }));
+  }, []);
+
   return {
     currentData,
     isRunning,
+    overallRiskFactor,
+    riskProgression,
     start,
     stop,
     reset,
     triggerEmergency,
     updateParams,
+    updateThresholdMultiplier,
     simulationParams
   };
 };

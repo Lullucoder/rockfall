@@ -1,0 +1,83 @@
+[
+  {
+    "id": "bbb36271-cd17-4615-abf7-734f85907d9d",
+    "alert_type": "test",
+    "severity": "high",
+    "zone_name": "Test Zone",
+    "message": " TEST ALERT: This is a test message for the rockfall monitoring system",
+    "status": "active",
+    "risk_score": 75,
+    "risk_probability": "medium",
+    "created_at": "2025-09-14T04:01:31.098Z"
+  },
+  {
+    "id": "03137447-d5b8-41d2-9a5a-b5e1f7b20af4",
+    "alert_type": "test",
+    "severity": "high",
+    "zone_name": "Test Zone",
+    "message": " TEST ALERT: Fixed version - testing SMS and email delivery",
+    "status": "active",
+    "risk_score": 75,
+    "risk_probability": "medium",
+    "created_at": "2025-09-14T04:02:57.791Z"
+  },
+  {
+    "id": "a16c3726-a1f8-48c6-9d3b-72f8c27f70c9",
+    "alert_type": "test",
+    "severity": "high",
+    "zone_name": "Test Zone",
+    "message": " FINAL TEST: SMS and email should work now!",
+    "status": "active",
+    "risk_score": 75,
+    "risk_probability": "medium",
+    "created_at": "2025-09-14T04:03:47.931Z"
+  },
+  {
+    "id": "ead46211-f236-406c-9bd8-6acba2d8213c",
+    "title": "HIGH RISK: Rockfall Warning",
+    "message": "HIGH ROCKFALL RISK DETECTED (Score: 8.5)\n\nImmediate caution required. Consider evacuation procedures and monitor conditions closely.",
+    "severity": "high",
+    "location": "High Risk Zone",
+    "riskScore": 8.5,
+    "zoneData": {
+      "sensor": "seismic-01",
+      "reading": "critical"
+    },
+    "type": "risk_alert",
+    "created_at": "2025-09-14T04:04:02.877Z",
+    "status": "active"
+  },
+  {
+    "id": "dff3cc4b-1579-413c-9e60-512278eb4ded",
+    "alert_type": "test",
+    "severity": "high",
+    "zone_name": "Test Zone",
+    "message": " Test alert for Prashant",
+    "status": "active",
+    "risk_score": 75,
+    "risk_probability": "medium",
+    "created_at": "2025-09-14T04:08:34.118Z"
+  },
+  {
+    "id": "7cb2e289-b964-4622-93a8-4113d59b5b42",
+    "alert_type": "test",
+    "severity": "medium",
+    "zone_name": "Test Zone",
+    "message": "This is a test alert from the system",
+    "status": "active",
+    "risk_score": 75,
+    "risk_probability": "medium",
+    "created_at": "2025-09-14T04:10:34.710Z"
+  },
+  {
+    "id": "086e0d9d-6923-40be-b464-261290d218dd",
+    "alert_type": "test",
+    "severity": "medium",
+    "zone_name": "Test Zone",
+    "message": "This is a test alert from the system",
+    "status": "active",
+    "risk_score": 75,
+    "risk_probability": "medium",
+    "created_at": "2025-09-14T04:29:22.660Z"
+  }
+]

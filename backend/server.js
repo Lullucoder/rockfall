@@ -12,6 +12,9 @@ const { initializeDatabase } = require('./database/db');
 const alertRoutes = require('./routes/alerts');
 const deviceRoutes = require('./routes/devices');
 const simulationRoutes = require('./routes/simulation');
+const testRoutes = require('./routes/test');
+const emergencyRoutes = require('./routes/emergency');
+const zonesRoutes = require('./routes/zones');
 const { AlertProcessor } = require('./services/AlertProcessor');
 const { RealTimeNotificationService } = require('./services/NotificationService');
 const { WebSocketManager } = require('./services/WebSocketManager');
@@ -61,6 +64,7 @@ const authenticateApiKey = (req, res, next) => {
 // Apply API key auth to protected routes
 app.use('/api/alerts', authenticateApiKey);
 app.use('/api/devices', authenticateApiKey);
+app.use('/api/users', authenticateApiKey);
 app.use('/api/simulation', authenticateApiKey);
 
 // Health check
@@ -76,7 +80,11 @@ app.get('/health', (req, res) => {
 // Routes
 app.use('/api/alerts', alertRoutes);
 app.use('/api/devices', deviceRoutes);
+app.use('/api/users', require('./routes/users')); // User registration and management
 app.use('/api/simulation', simulationRoutes);
+app.use('/api/test', testRoutes); // Test routes for validating notification services
+app.use('/api/emergency', emergencyRoutes); // Emergency SOS routes
+app.use('/api/zones', zonesRoutes); // Zone management routes
 
 // Real-time alert monitoring endpoint
 app.post('/api/monitor/risk-assessment', authenticateApiKey, async (req, res) => {
@@ -244,6 +252,35 @@ async function startServer() {
     await notificationService.initialize();
     console.log('✅ Notification service initialized');
 
+    // Test Supabase connection
+    console.log('🔗 Testing Supabase connection...');
+    const { testConnection } = require('./database/supabase');
+    const isConnected = await testConnection();
+    
+    if (isConnected) {
+      console.log('✅ Supabase connection successful!');
+      
+      // Setup real-time subscriptions
+      console.log('🔔 Setting up Supabase real-time subscriptions...');
+      const { subscribeToAlerts, subscribeToEmergencyEvents } = require('./database/supabase');
+      
+      // Subscribe to new alerts
+      subscribeToAlerts(async (payload) => {
+        console.log('📢 New alert received via real-time:', payload.new);
+        // TODO: Process the alert through AlertProcessor
+      });
+
+      // Subscribe to emergency events
+      subscribeToEmergencyEvents(async (payload) => {
+        console.log('🚨 Emergency event received via real-time:', payload.new);
+        // TODO: Handle emergency event
+      });
+      
+      console.log('✅ Real-time subscriptions setup complete');
+    } else {
+      console.error('❌ Supabase connection failed - check your configuration');
+    }
+
     // Start server
     const PORT = process.env.PORT || 3001;
     server.listen(PORT, () => {
@@ -255,12 +292,48 @@ async function startServer() {
     });
 
     // Handle graceful shutdown
+    const allowSigintExit = process.env.ALLOW_SIGINT_EXIT !== 'false';
     process.on('SIGINT', () => {
+      if (!allowSigintExit) {
+        console.log('\n⚠️ SIGINT received but ALLOW_SIGINT_EXIT=false so keeping server alive');
+        return; 
+      }
       console.log('\n🛑 Shutting down server...');
       server.close(() => {
         console.log('✅ Server closed');
         process.exit(0);
       });
+    });
+
+    process.on('unhandledRejection', (reason) => {
+      console.error('🚨 Unhandled Rejection:', reason);
+    });
+    process.on('uncaughtException', (err) => {
+      console.error('🚨 Uncaught Exception:', err);
+    });
+
+    // Debug schema endpoint
+    app.get('/debug/schema', async (req, res) => {
+      try {
+        const { createClient } = require('@supabase/supabase-js');
+        const supabase = require('./database/supabase').supabase || createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+        const tables = ['users','devices'];
+        const results = {};
+        for (const t of tables) {
+          const { data, error } = await supabase.rpc('introspect_table_columns', { tbl: t }).catch(()=>({ error: 'function_missing'}));
+          if (error === 'function_missing') {
+            // fallback query via REST not possible here. Provide guidance.
+            results[t] = { error: 'introspection function missing' };
+          } else if (error) {
+            results[t] = { error: error.message };
+          } else {
+            results[t] = data;
+          }
+        }
+        res.json({ success: true, hint: 'If results empty, run SQL: SELECT column_name,data_type FROM information_schema.columns WHERE table_name=...;', results });
+      } catch (e) {
+        res.status(500).json({ success:false, error: e.message });
+      }
     });
 
   } catch (error) {

@@ -78,6 +78,10 @@ async function initializeDatabase() {
           affected_personnel INTEGER DEFAULT 0,
           equipment_at_risk TEXT, -- JSON string
           alert_type TEXT DEFAULT 'automatic',
+          notifications_sent INTEGER DEFAULT 0,
+          last_notification_at DATETIME,
+          resolution_notes TEXT,
+          resolved_by TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           resolved_at DATETIME
@@ -250,11 +254,11 @@ const dbHelpers = {
         alert.message,
         alert.riskScore,
         alert.riskProbability,
-        alert.timeToEvent,
-        JSON.stringify(alert.recommendedActions || []),
+        alert.predictedTimeline,
+        alert.recommendedActions || '[]',
         alert.affectedPersonnel || 0,
-        JSON.stringify(alert.equipmentAtRisk || []),
-        alert.type || 'automatic'
+        alert.equipmentAtRisk || '[]',
+        alert.alertType || 'automatic'
       ], function(err) {
         if (err) {
           reject(err);
@@ -283,6 +287,52 @@ const dbHelpers = {
           }
         }
       );
+    });
+  },
+
+  async updateAlert(alertId, updates) {
+    return new Promise((resolve, reject) => {
+      const fields = [];
+      const values = [];
+      
+      if (updates.status !== undefined) {
+        fields.push('status = ?');
+        values.push(updates.status);
+      }
+      if (updates.resolvedAt !== undefined) {
+        fields.push('resolved_at = ?');
+        values.push(updates.resolvedAt);
+      }
+      if (updates.resolutionNotes !== undefined) {
+        fields.push('resolution_notes = ?');
+        values.push(updates.resolutionNotes);
+      }
+      if (updates.resolvedBy !== undefined) {
+        fields.push('resolved_by = ?');
+        values.push(updates.resolvedBy);
+      }
+      if (updates.notificationsSent !== undefined) {
+        fields.push('notifications_sent = ?');
+        values.push(updates.notificationsSent);
+      }
+      if (updates.lastNotificationAt !== undefined) {
+        fields.push('last_notification_at = ?');
+        values.push(updates.lastNotificationAt);
+      }
+      
+      fields.push('updated_at = ?');
+      values.push(new Date().toISOString());
+      values.push(alertId);
+
+      const sql = `UPDATE alerts SET ${fields.join(', ')} WHERE id = ?`;
+      
+      db.run(sql, values, function(err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(this.changes);
+        }
+      });
     });
   },
 

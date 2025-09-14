@@ -13,70 +13,66 @@ import {
   RefreshCw,
   TrendingUp,
   Users,
-  Zap
+  Zap,
+  Loader2
 } from 'lucide-react';
-import type { NotificationDeliveryStatus } from '../services/RealWorldNotificationService';
-import { useNotificationService } from '../services/RealWorldNotificationService';
+import { apiService, type AlertDeliveryStatus, type Device } from '../services/apiService';
 
 interface AlertStatusMonitorProps {
   refreshInterval?: number;
 }
 
 export const MobileAlertStatusMonitor: React.FC<AlertStatusMonitorProps> = ({
-  refreshInterval = 5000
+  refreshInterval = 30000
 }) => {
-  const { getRegisteredDevices } = useNotificationService();
-  const [deliveryStatuses, setDeliveryStatuses] = useState<NotificationDeliveryStatus[]>([]);
-  const [selectedStatus, setSelectedStatus] = useState<NotificationDeliveryStatus | null>(null);
+  const [deliveryStatuses, setDeliveryStatuses] = useState<AlertDeliveryStatus[]>([]);
+  const [devices, setDevices] = useState<Device[]>([]);
+  const [selectedStatus, setSelectedStatus] = useState<AlertDeliveryStatus | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Mock delivery statuses for demonstration
+  // Load data on component mount
   useEffect(() => {
-    const generateMockStatuses = (): NotificationDeliveryStatus[] => {
-      const devices = getRegisteredDevices();
-      const mockStatuses: NotificationDeliveryStatus[] = [];
-      
-      const alertIds = ['alert-001', 'alert-002', 'alert-003'];
-      const channels: Array<'push' | 'sms' | 'email'> = ['push', 'sms', 'email'];
-      const statuses: Array<'pending' | 'sent' | 'delivered' | 'failed' | 'read'> = 
-        ['pending', 'sent', 'delivered', 'failed', 'read'];
+    loadData();
+  }, []);
 
-      devices.forEach((device, deviceIndex) => {
-        alertIds.forEach((alertId, alertIndex) => {
-          channels.forEach((channel, channelIndex) => {
-            const statusIndex = (deviceIndex + alertIndex + channelIndex) % statuses.length;
-            const timestamp = new Date(Date.now() - Math.random() * 3600000); // Random time in last hour
-            
-            mockStatuses.push({
-              id: `status_${deviceIndex}_${alertIndex}_${channelIndex}`,
-              alertId,
-              deviceId: device.id,
-              channel,
-              status: statuses[statusIndex],
-              timestamp,
-              deliveryAttempts: Math.floor(Math.random() * 3) + 1,
-              errorMessage: statuses[statusIndex] === 'failed' ? 'Network timeout' : undefined,
-              readAt: statuses[statusIndex] === 'read' ? new Date(timestamp.getTime() + 300000) : undefined
-            });
-          });
-        });
-      });
+  // Set up refresh interval
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadData(true);
+    }, refreshInterval);
 
-      return mockStatuses.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-    };
-
-    const updateStatuses = () => {
-      setIsRefreshing(true);
-      setTimeout(() => {
-        setDeliveryStatuses(generateMockStatuses());
-        setIsRefreshing(false);
-      }, 500);
-    };
-
-    updateStatuses();
-    const interval = setInterval(updateStatuses, refreshInterval);
     return () => clearInterval(interval);
-  }, [refreshInterval, getRegisteredDevices]);
+  }, [refreshInterval]);
+
+  const loadData = async (isRefresh = false) => {
+    if (isRefresh) {
+      setIsRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+
+    try {
+      // Load devices and delivery statuses in parallel
+      const [devicesResponse, statusResponse] = await Promise.all([
+        apiService.getDevices(),
+        apiService.getAllDeliveryStatuses()
+      ]);
+
+      if (devicesResponse.success && devicesResponse.data) {
+        setDevices(devicesResponse.data);
+      }
+
+      if (statusResponse.success && statusResponse.data) {
+        setDeliveryStatuses(statusResponse.data);
+      }
+    } catch (error) {
+      console.error('Failed to load data:', error);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
+    }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -139,21 +135,43 @@ export const MobileAlertStatusMonitor: React.FC<AlertStatusMonitorProps> = ({
     );
     if (deliveredStatuses.length === 0) return 0;
     
-    // Mock average delivery time calculation
-    return Math.round(Math.random() * 30 + 5); // 5-35 seconds
+    // Calculate average based on created_at vs delivered_at
+    let totalTime = 0;
+    let count = 0;
+    
+    deliveredStatuses.forEach(status => {
+      if (status.delivered_at && status.created_at) {
+        const deliveredTime = new Date(status.delivered_at).getTime();
+        const createdTime = new Date(status.created_at).getTime();
+        totalTime += (deliveredTime - createdTime) / 1000; // Convert to seconds
+        count++;
+      }
+    });
+    
+    return count > 0 ? Math.round(totalTime / count) : 0;
   };
 
   const getActiveDevices = () => {
-    const devices = getRegisteredDevices();
-    return devices.filter(d => d.isActive && d.networkStatus === 'online').length;
+    return devices.filter(d => d.is_active).length;
   };
 
   const getRecentAlerts = () => {
     const recentTime = Date.now() - 3600000; // Last hour
-    return deliveryStatuses.filter(s => s.timestamp.getTime() > recentTime).length;
+    return deliveryStatuses.filter(s => 
+      new Date(s.created_at).getTime() > recentTime
+    ).length;
   };
 
   const filteredStatuses = deliveryStatuses.slice(0, 50); // Show last 50 for performance
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <span className="ml-2 text-gray-600">Loading alert delivery status...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -171,7 +189,7 @@ export const MobileAlertStatusMonitor: React.FC<AlertStatusMonitorProps> = ({
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => window.location.reload()}
+          onClick={() => loadData(true)}
           disabled={isRefreshing}
           className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
@@ -222,7 +240,7 @@ export const MobileAlertStatusMonitor: React.FC<AlertStatusMonitorProps> = ({
 
       {/* Channel Performance */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        {['push', 'sms', 'email'].map((channel) => {
+        {(['push', 'sms', 'email'] as const).map((channel) => {
           const channelStatuses = deliveryStatuses.filter(s => s.channel === channel);
           const successCount = channelStatuses.filter(s => 
             s.status === 'delivered' || s.status === 'read'
@@ -289,7 +307,7 @@ export const MobileAlertStatusMonitor: React.FC<AlertStatusMonitorProps> = ({
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredStatuses.map((status, index) => {
-                const device = getRegisteredDevices().find(d => d.id === status.deviceId);
+                const device = devices.find(d => d.id === status.device_id);
                 
                 return (
                   <motion.tr
@@ -300,12 +318,12 @@ export const MobileAlertStatusMonitor: React.FC<AlertStatusMonitorProps> = ({
                     className="hover:bg-gray-50"
                   >
                     <td className="px-4 py-3">
-                      <span className="text-sm font-medium text-gray-900">{status.alertId}</span>
+                      <span className="text-sm font-medium text-gray-900">{status.alert_id}</span>
                     </td>
                     <td className="px-4 py-3">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{device?.minerName || 'Unknown'}</p>
-                        <p className="text-xs text-gray-500">{device?.minerId || status.deviceId}</p>
+                        <p className="text-sm font-medium text-gray-900">{device?.miner_name || 'Unknown'}</p>
+                        <p className="text-xs text-gray-500">{device?.miner_id || status.device_id}</p>
                       </div>
                     </td>
                     <td className="px-4 py-3">
@@ -324,13 +342,17 @@ export const MobileAlertStatusMonitor: React.FC<AlertStatusMonitorProps> = ({
                     </td>
                     <td className="px-4 py-3">
                       <div>
-                        <p className="text-sm text-gray-900">{status.timestamp.toLocaleTimeString()}</p>
-                        <p className="text-xs text-gray-500">{status.timestamp.toLocaleDateString()}</p>
+                        <p className="text-sm text-gray-900">
+                          {new Date(status.created_at).toLocaleTimeString()}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(status.created_at).toLocaleDateString()}
+                        </p>
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-sm ${status.deliveryAttempts > 1 ? 'text-orange-600 font-medium' : 'text-gray-900'}`}>
-                        {status.deliveryAttempts}
+                      <span className={`text-sm ${status.delivery_attempts > 1 ? 'text-orange-600 font-medium' : 'text-gray-900'}`}>
+                        {status.delivery_attempts}
                       </span>
                     </td>
                     <td className="px-4 py-3">
@@ -388,7 +410,7 @@ export const MobileAlertStatusMonitor: React.FC<AlertStatusMonitorProps> = ({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Alert ID</label>
-                      <p className="text-sm text-gray-900">{selectedStatus.alertId}</p>
+                      <p className="text-sm text-gray-900">{selectedStatus.alert_id}</p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Channel</label>
@@ -411,31 +433,40 @@ export const MobileAlertStatusMonitor: React.FC<AlertStatusMonitorProps> = ({
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Attempts</label>
-                      <p className="text-sm text-gray-900">{selectedStatus.deliveryAttempts}</p>
+                      <p className="text-sm text-gray-900">{selectedStatus.delivery_attempts}</p>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Timestamp</label>
+                    <label className="block text-sm font-medium text-gray-700">Created At</label>
                     <p className="text-sm text-gray-900">
-                      {selectedStatus.timestamp.toLocaleString()}
+                      {new Date(selectedStatus.created_at).toLocaleString()}
                     </p>
                   </div>
 
-                  {selectedStatus.readAt && (
+                  {selectedStatus.delivered_at && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Read At</label>
+                      <label className="block text-sm font-medium text-gray-700">Delivered At</label>
                       <p className="text-sm text-gray-900">
-                        {selectedStatus.readAt.toLocaleString()}
+                        {new Date(selectedStatus.delivered_at).toLocaleString()}
                       </p>
                     </div>
                   )}
 
-                  {selectedStatus.errorMessage && (
+                  {selectedStatus.read_at && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Read At</label>
+                      <p className="text-sm text-gray-900">
+                        {new Date(selectedStatus.read_at).toLocaleString()}
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedStatus.error_message && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Error Message</label>
                       <p className="text-sm text-red-600 bg-red-50 p-2 rounded">
-                        {selectedStatus.errorMessage}
+                        {selectedStatus.error_message}
                       </p>
                     </div>
                   )}

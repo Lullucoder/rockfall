@@ -110,43 +110,58 @@ class RealTimeNotificationService {
           vibrationPattern: [200, 100, 200, 100, 200, 100, 200]
         },
         sms: {
-          message: '🚨 EMERGENCY: Rockfall risk in {zoneName}. EVACUATE IMMEDIATELY! Risk: {riskScore}/10. Time: {timestamp}'
+          message: '🚨 CRITICAL ALERT - {zoneName}\n\nIMMEDIATE EVACUATION REQUIRED!\n\nRisk Score: {riskScore}/10\nProbability: {riskProbability}%\nTime: {timestamp}\n\nThis is NOT a drill. Follow emergency protocols immediately.\n\nAlert ID: {alertId}'
         },
         email: {
-          subject: 'CRITICAL ALERT: Immediate Evacuation Required - {zoneName}',
+          subject: '🚨 CRITICAL ROCKFALL ALERT - Immediate Evacuation Required - {zoneName}',
           htmlTemplate: this.getCriticalEmailTemplate(),
-          textTemplate: 'CRITICAL ROCKFALL ALERT - {zoneName}: Risk {riskScore}/10. IMMEDIATE EVACUATION REQUIRED.'
+          textTemplate: 'CRITICAL ROCKFALL ALERT - {zoneName}: Risk {riskScore}/10, Probability {riskProbability}%. IMMEDIATE EVACUATION REQUIRED. Follow emergency protocols. Alert ID: {alertId}'
         }
       },
       high: {
         push: {
-          title: '⚠️ HIGH RISK: {zoneName}',
+          title: '⚠️ HIGH RISK ALERT: {zoneName}',
           body: 'Elevated rockfall risk detected. Restrict access to essential personnel.',
           sound: 'warning.mp3',
           vibrationPattern: [300, 200, 300]
         },
         sms: {
-          message: '⚠️ HIGH RISK in {zoneName}. Risk: {riskScore}/10. Restrict access to essential personnel only.'
+          message: '⚠️ HIGH RISK ALERT - {zoneName}\n\nElevated rockfall risk detected.\n\nRisk Score: {riskScore}/10\nProbability: {riskProbability}%\nTime: {timestamp}\n\nAction Required:\n• Restrict access to essential personnel only\n• Implement safety protocols\n• Monitor conditions closely\n\nAlert ID: {alertId}'
         },
         email: {
-          subject: 'High Risk Alert - {zoneName}',
+          subject: '⚠️ HIGH RISK ALERT - Enhanced Safety Protocols Required - {zoneName}',
           htmlTemplate: this.getHighRiskEmailTemplate(),
-          textTemplate: 'High Risk Alert - {zoneName}: Risk {riskScore}/10. Restrict access.'
+          textTemplate: 'HIGH RISK ALERT - {zoneName}: Risk {riskScore}/10, Probability {riskProbability}%. Restrict access to essential personnel. Enhanced safety protocols required. Alert ID: {alertId}'
         }
       },
       medium: {
         push: {
-          title: '📊 Monitoring Alert: {zoneName}',
+          title: '📊 MONITORING ALERT: {zoneName}',
           body: 'Increased monitoring recommended. Risk Score: {riskScore}/10',
           vibrationPattern: [200, 100, 200]
         },
         sms: {
-          message: '📊 Monitoring Alert: {zoneName} - Risk: {riskScore}/10. Increase monitoring frequency.'
+          message: '📊 MONITORING ALERT - {zoneName}\n\nIncreased monitoring recommended.\n\nRisk Score: {riskScore}/10\nProbability: {riskProbability}%\nTime: {timestamp}\n\nRecommended Actions:\n• Increase monitoring frequency\n• Review safety procedures\n• Stay alert for changes\n\nAlert ID: {alertId}'
         },
         email: {
-          subject: 'Monitoring Alert - {zoneName}',
+          subject: '📊 MONITORING ALERT - Enhanced Surveillance Required - {zoneName}',
           htmlTemplate: this.getMediumRiskEmailTemplate(),
-          textTemplate: 'Monitoring Alert - {zoneName}: Risk {riskScore}/10. Increase monitoring.'
+          textTemplate: 'MONITORING ALERT - {zoneName}: Risk {riskScore}/10, Probability {riskProbability}%. Increase monitoring frequency and review safety procedures. Alert ID: {alertId}'
+        }
+      },
+      low: {
+        push: {
+          title: '📋 ADVISORY: {zoneName}',
+          body: 'Low-level activity detected. Continue normal operations with awareness.',
+          vibrationPattern: [100, 50, 100]
+        },
+        sms: {
+          message: '📋 ADVISORY - {zoneName}\n\nLow-level rockfall activity detected.\n\nRisk Score: {riskScore}/10\nProbability: {riskProbability}%\nTime: {timestamp}\n\nContinue normal operations with increased awareness.\n\nAlert ID: {alertId}'
+        },
+        email: {
+          subject: '📋 ADVISORY NOTICE - Low-Level Activity Detected - {zoneName}',
+          htmlTemplate: this.getLowRiskEmailTemplate(),
+          textTemplate: 'ADVISORY - {zoneName}: Risk {riskScore}/10, Probability {riskProbability}%. Low-level activity detected. Continue normal operations with awareness. Alert ID: {alertId}'
         }
       }
     };
@@ -546,52 +561,276 @@ class RealTimeNotificationService {
 
   getCriticalEmailTemplate() {
     return `
-      <div style="background: #dc2626; color: white; padding: 20px; border-radius: 8px; font-family: Arial, sans-serif;">
-        <h1 style="margin: 0 0 16px 0;">🚨 CRITICAL ROCKFALL ALERT</h1>
-        <h2 style="margin: 0 0 16px 0; color: #fef2f2;">Zone: {zoneName}</h2>
-        <div style="background: rgba(255,255,255,0.1); padding: 16px; border-radius: 4px; margin: 16px 0;">
-          <p><strong>Risk Score:</strong> {riskScore}/10</p>
-          <p><strong>Time to Event:</strong> {timeToEvent}</p>
-          <p><strong>Alert Time:</strong> {timestamp}</p>
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Critical Rockfall Alert</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 30px 20px; text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 10px;">🚨</div>
+            <h1 style="margin: 0; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+              CRITICAL ROCKFALL ALERT
+            </h1>
+            <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 5px; margin-top: 15px; border: 2px solid rgba(255,255,255,0.3);">
+              <h2 style="margin: 0; font-size: 22px; color: #fef2f2;">Zone: {zoneName}</h2>
+            </div>
+          </div>
+          
+          <!-- Content -->
+          <div style="padding: 30px 20px;">
+            <!-- Emergency Notice -->
+            <div style="background: #fef2f2; border: 3px solid #dc2626; border-radius: 8px; padding: 20px; margin-bottom: 25px; text-align: center;">
+              <h3 style="margin: 0 0 10px 0; color: #dc2626; font-size: 20px;">⚡ IMMEDIATE EVACUATION REQUIRED ⚡</h3>
+              <p style="margin: 0; color: #991b1b; font-size: 16px; font-weight: 600;">This is not a drill. Follow emergency protocols immediately.</p>
+            </div>
+            
+            <!-- Risk Details -->
+            <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+              <h3 style="margin: 0 0 15px 0; color: #374151; font-size: 18px; border-bottom: 2px solid #dc2626; padding-bottom: 8px;">📊 Risk Assessment</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #dc2626;">
+                  <strong style="color: #374151;">Risk Score:</strong>
+                  <div style="font-size: 24px; font-weight: bold; color: #dc2626; margin-top: 5px;">{riskScore}/10</div>
+                </div>
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #f59e0b;">
+                  <strong style="color: #374151;">Probability:</strong>
+                  <div style="font-size: 18px; font-weight: bold; color: #f59e0b; margin-top: 5px;">{riskProbability}%</div>
+                </div>
+              </div>
+              <div style="background: white; padding: 15px; border-radius: 6px; margin-top: 15px; border-left: 4px solid #10b981;">
+                <strong style="color: #374151;">Alert Time:</strong>
+                <div style="font-size: 16px; color: #374151; margin-top: 5px;">{timestamp}</div>
+              </div>
+            </div>
+            
+            <!-- Recommended Actions -->
+            <div style="background: #fefce8; border-left: 5px solid #f59e0b; padding: 20px; margin-bottom: 25px;">
+              <h3 style="margin: 0 0 15px 0; color: #92400e;">🔧 IMMEDIATE ACTIONS REQUIRED:</h3>
+              <div style="color: #451a03; line-height: 1.6;">
+                {recommendedActions}
+              </div>
+            </div>
+            
+            <!-- Emergency Contacts -->
+            <div style="background: #eff6ff; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+              <h3 style="margin: 0 0 15px 0; color: #1e40af;">📞 Emergency Contacts</h3>
+              <div style="color: #1e3a8a;">
+                <p style="margin: 5px 0;"><strong>Emergency Services:</strong> 911</p>
+                <p style="margin: 5px 0;"><strong>Mine Safety:</strong> {emergencyContact}</p>
+                <p style="margin: 5px 0;"><strong>Site Supervisor:</strong> {supervisorContact}</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+          <div style="background: #374151; color: white; padding: 20px; text-align: center;">
+            <p style="margin: 0 0 10px 0; font-size: 14px;">Rockfall Detection & Alert System</p>
+            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
+              Alert ID: {alertId} | Generated: {timestamp}
+            </p>
+          </div>
         </div>
-        <h3 style="color: #fef2f2;">IMMEDIATE ACTION REQUIRED:</h3>
-        <div style="background: rgba(255,255,255,0.1); padding: 16px; border-radius: 4px;">
-          {recommendedActions}
-        </div>
-        <p style="font-size: 18px; font-weight: bold; margin-top: 20px; text-align: center;">
-          Follow emergency evacuation procedures immediately!
-        </p>
-      </div>
+      </body>
+      </html>
     `;
   }
 
   getHighRiskEmailTemplate() {
     return `
-      <div style="background: #f59e0b; color: white; padding: 20px; border-radius: 8px; font-family: Arial, sans-serif;">
-        <h2 style="margin: 0 0 16px 0;">⚠️ High Risk Alert</h2>
-        <p><strong>Zone:</strong> {zoneName}</p>
-        <p><strong>Risk Score:</strong> {riskScore}/10</p>
-        <p><strong>Time:</strong> {timestamp}</p>
-        <div style="margin-top: 16px;">
-          <strong>Recommended Actions:</strong>
-          <div style="margin-top: 8px;">{recommendedActions}</div>
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>High Risk Alert</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 25px 20px; text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
+            <h1 style="margin: 0; font-size: 24px; font-weight: bold;">HIGH RISK ALERT</h1>
+            <h2 style="margin: 10px 0 0 0; font-size: 20px; color: #fef3c7;">Zone: {zoneName}</h2>
+          </div>
+          
+          <!-- Content -->
+          <div style="padding: 25px 20px;">
+            <!-- Warning Notice -->
+            <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: center;">
+              <h3 style="margin: 0; color: #92400e;">⚡ ELEVATED RISK DETECTED ⚡</h3>
+              <p style="margin: 5px 0 0 0; color: #78350f;">Restrict access to essential personnel only</p>
+            </div>
+            
+            <!-- Risk Details -->
+            <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+              <h3 style="margin: 0 0 15px 0; color: #374151; border-bottom: 2px solid #f59e0b; padding-bottom: 8px;">📊 Risk Details</h3>
+              <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #f59e0b;">
+                <p style="margin: 5px 0;"><strong>Risk Score:</strong> <span style="color: #f59e0b; font-size: 18px; font-weight: bold;">{riskScore}/10</span></p>
+                <p style="margin: 5px 0;"><strong>Probability:</strong> {riskProbability}%</p>
+                <p style="margin: 5px 0;"><strong>Alert Time:</strong> {timestamp}</p>
+              </div>
+            </div>
+            
+            <!-- Recommended Actions -->
+            <div style="background: #fefce8; border-left: 4px solid #f59e0b; padding: 20px; margin-bottom: 20px;">
+              <h3 style="margin: 0 0 10px 0; color: #92400e;">🔧 Recommended Actions:</h3>
+              <div style="color: #451a03; line-height: 1.6;">
+                {recommendedActions}
+              </div>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+          <div style="background: #374151; color: white; padding: 15px; text-align: center;">
+            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
+              Rockfall Detection System | Alert ID: {alertId}
+            </p>
+          </div>
         </div>
-      </div>
+      </body>
+      </html>
     `;
   }
 
   getMediumRiskEmailTemplate() {
     return `
-      <div style="background: #3b82f6; color: white; padding: 20px; border-radius: 8px; font-family: Arial, sans-serif;">
-        <h3 style="margin: 0 0 16px 0;">📊 Monitoring Alert</h3>
-        <p><strong>Zone:</strong> {zoneName}</p>
-        <p><strong>Risk Score:</strong> {riskScore}/10</p>
-        <p><strong>Time:</strong> {timestamp}</p>
-        <div style="margin-top: 16px;">
-          <strong>Recommended Actions:</strong>
-          <div style="margin-top: 8px;">{recommendedActions}</div>
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Monitoring Alert</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 25px 20px; text-align: center;">
+            <div style="font-size: 36px; margin-bottom: 10px;">📊</div>
+            <h1 style="margin: 0; font-size: 22px; font-weight: bold;">MONITORING ALERT</h1>
+            <h2 style="margin: 10px 0 0 0; font-size: 18px; color: #dbeafe;">Zone: {zoneName}</h2>
+          </div>
+          
+          <!-- Content -->
+          <div style="padding: 25px 20px;">
+            <!-- Info Notice -->
+            <div style="background: #dbeafe; border: 2px solid #3b82f6; border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: center;">
+              <h3 style="margin: 0; color: #1e40af;">📈 Increased Monitoring Recommended</h3>
+              <p style="margin: 5px 0 0 0; color: #1e3a8a;">Enhanced surveillance protocols should be implemented</p>
+            </div>
+            
+            <!-- Risk Details -->
+            <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+              <h3 style="margin: 0 0 15px 0; color: #374151; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;">📊 Assessment Details</h3>
+              <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #3b82f6;">
+                <p style="margin: 5px 0;"><strong>Risk Score:</strong> <span style="color: #3b82f6; font-size: 18px; font-weight: bold;">{riskScore}/10</span></p>
+                <p style="margin: 5px 0;"><strong>Probability:</strong> {riskProbability}%</p>
+                <p style="margin: 5px 0;"><strong>Alert Time:</strong> {timestamp}</p>
+                <p style="margin: 5px 0;"><strong>Status:</strong> <span style="color: #059669;">Monitoring</span></p>
+              </div>
+            </div>
+            
+            <!-- Recommended Actions -->
+            <div style="background: #f0f9ff; border-left: 4px solid #3b82f6; padding: 20px; margin-bottom: 20px;">
+              <h3 style="margin: 0 0 10px 0; color: #1e40af;">🔍 Monitoring Actions:</h3>
+              <div style="color: #1e3a8a; line-height: 1.6;">
+                {recommendedActions}
+              </div>
+            </div>
+            
+            <!-- Additional Info -->
+            <div style="background: #f9fafb; border-radius: 6px; padding: 15px;">
+              <h4 style="margin: 0 0 10px 0; color: #374151;">💡 Next Steps:</h4>
+              <ul style="margin: 0; padding-left: 20px; color: #4b5563;">
+                <li>Continue regular monitoring protocols</li>
+                <li>Report any unusual activity immediately</li>
+                <li>Review safety procedures with team</li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+          <div style="background: #374151; color: white; padding: 15px; text-align: center;">
+            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
+              Rockfall Detection System | Alert ID: {alertId}
+            </p>
+          </div>
         </div>
-      </div>
+      </body>
+      </html>
+    `;
+  }
+
+  getLowRiskEmailTemplate() {
+    return `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Advisory Notice</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #059669, #047857); color: white; padding: 25px 20px; text-align: center;">
+            <div style="font-size: 36px; margin-bottom: 10px;">📋</div>
+            <h1 style="margin: 0; font-size: 22px; font-weight: bold;">ADVISORY NOTICE</h1>
+            <h2 style="margin: 10px 0 0 0; font-size: 18px; color: #d1fae5;">Zone: {zoneName}</h2>
+          </div>
+          
+          <!-- Content -->
+          <div style="padding: 25px 20px;">
+            <!-- Info Notice -->
+            <div style="background: #d1fae5; border: 2px solid #059669; border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: center;">
+              <h3 style="margin: 0; color: #047857;">📈 Low-Level Activity Detected</h3>
+              <p style="margin: 5px 0 0 0; color: #065f46;">Continue normal operations with increased awareness</p>
+            </div>
+            
+            <!-- Risk Details -->
+            <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+              <h3 style="margin: 0 0 15px 0; color: #374151; border-bottom: 2px solid #059669; padding-bottom: 8px;">📊 Activity Summary</h3>
+              <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #059669;">
+                <p style="margin: 5px 0;"><strong>Risk Score:</strong> <span style="color: #059669; font-size: 18px; font-weight: bold;">{riskScore}/10</span></p>
+                <p style="margin: 5px 0;"><strong>Probability:</strong> {riskProbability}%</p>
+                <p style="margin: 5px 0;"><strong>Alert Time:</strong> {timestamp}</p>
+                <p style="margin: 5px 0;"><strong>Status:</strong> <span style="color: #059669;">Normal Operations</span></p>
+              </div>
+            </div>
+            
+            <!-- Recommended Actions -->
+            <div style="background: #ecfdf5; border-left: 4px solid #059669; padding: 20px; margin-bottom: 20px;">
+              <h3 style="margin: 0 0 10px 0; color: #047857;">✅ Advisory Actions:</h3>
+              <div style="color: #065f46; line-height: 1.6;">
+                {recommendedActions}
+              </div>
+            </div>
+            
+            <!-- Additional Info -->
+            <div style="background: #f9fafb; border-radius: 6px; padding: 15px;">
+              <h4 style="margin: 0 0 10px 0; color: #374151;">💡 Routine Procedures:</h4>
+              <ul style="margin: 0; padding-left: 20px; color: #4b5563;">
+                <li>Maintain standard monitoring protocols</li>
+                <li>Continue normal mining operations</li>
+                <li>Stay alert for any changes in conditions</li>
+                <li>Report unusual observations</li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+          <div style="background: #374151; color: white; padding: 15px; text-align: center;">
+            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
+              Rockfall Detection System | Alert ID: {alertId}
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
     `;
   }
 }

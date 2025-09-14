@@ -1,7 +1,7 @@
 const express = require('express');
 const Joi = require('joi');
 const { v4: uuidv4 } = require('uuid');
-const { createDevice, getDevices, updateDeviceStatus, savePushSubscription } = require('../database/db');
+const localDB = require('../storage/localDB');
 const webpush = require('web-push');
 
 const router = express.Router();
@@ -33,27 +33,11 @@ const deviceSchema = Joi.object({
 // GET /api/devices - Get all registered devices
 router.get('/', async (req, res) => {
   try {
-    const devices = await getDevices();
-    res.json({
-      success: true,
-      devices: devices.map(device => ({
-        id: device.id,
-        minerId: device.miner_id,
-        minerName: device.miner_name,
-        deviceType: device.device_type,
-        phoneNumber: device.phone_number,
-        email: device.email,
-        fcmToken: device.fcm_token,
-        zoneAssignment: device.zone_assignment,
-        isActive: Boolean(device.is_active),
-        preferences: typeof device.preferences === 'string' 
-          ? JSON.parse(device.preferences) 
-          : device.preferences,
-        batteryLevel: device.battery_level,
-        networkStatus: device.network_status,
-        lastSeen: device.last_seen,
-        createdAt: device.created_at
-      }))
+    const devices = await localDB.getActiveDevices();
+    res.json({ 
+      success: true, 
+      data: devices, 
+      count: devices.length 
     });
   } catch (error) {
     console.error('❌ Error fetching devices:', error);
@@ -68,7 +52,22 @@ router.get('/', async (req, res) => {
 // POST /api/devices - Register a new device
 router.post('/', async (req, res) => {
   try {
-    const { error, value } = deviceSchema.validate(req.body);
+    // Accept both snake_case (frontend current form) and camelCase (schema) keys
+    const raw = req.body || {};
+    const normalized = {
+      minerId: raw.minerId || raw.miner_id,
+      minerName: raw.minerName || raw.miner_name,
+      deviceType: raw.deviceType || raw.device_type,
+      phoneNumber: raw.phoneNumber || raw.phone_number,
+      email: raw.email,
+      fcmToken: raw.fcmToken || raw.fcm_token,
+      zoneAssignment: raw.zoneAssignment || raw.zone_assignment,
+      preferences: raw.preferences || raw.notification_settings || raw.notificationPreferences,
+      batteryLevel: raw.batteryLevel,
+      networkStatus: raw.networkStatus
+    };
+
+    const { error, value } = deviceSchema.validate(normalized);
     if (error) {
       return res.status(400).json({
         success: false,
@@ -77,36 +76,26 @@ router.post('/', async (req, res) => {
       });
     }
 
-    const deviceId = uuidv4();
-    const device = {
-      id: deviceId,
-      minerId: value.minerId,
-      minerName: value.minerName,
-      deviceType: value.deviceType,
-      phoneNumber: value.phoneNumber,
+    const device = await localDB.saveDevice({
+      miner_id: value.minerId,
+      miner_name: value.minerName,
+      device_type: value.deviceType,
+      phone_number: value.phoneNumber,
       email: value.email,
-      fcmToken: value.fcmToken,
-      location: { zone: value.zoneAssignment },
+      fcm_token: value.fcmToken,
+      zone_assignment: value.zoneAssignment,
       preferences: value.preferences,
-      batteryLevel: value.batteryLevel || 85,
-      networkStatus: value.networkStatus || 'online'
-    };
+      battery_level: value.batteryLevel,
+      network_status: value.networkStatus || 'online'
+    });
 
-    await createDevice(device);
-
-    console.log(`✅ Device registered: ${deviceId} for ${value.minerName}`);
+    console.log(`✅ Device registered: ${device.id}`);
 
     res.status(201).json({
       success: true,
-      deviceId,
+      deviceId: device.id,
       message: 'Device registered successfully',
-      device: {
-        id: deviceId,
-        minerId: value.minerId,
-        minerName: value.minerName,
-        deviceType: value.deviceType,
-        zoneAssignment: value.zoneAssignment
-      }
+      device: device
     });
 
   } catch (error) {
@@ -138,7 +127,7 @@ router.post('/:deviceId/subscribe', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Invalid subscription payload' });
     }
 
-    await savePushSubscription(deviceId, subscription);
+    await localDB.savePushSubscription(deviceId, subscription);
     console.log('🔔 Saved push subscription for device', deviceId);
 
     res.json({ success: true, message: 'Subscription saved' });
@@ -155,31 +144,34 @@ router.put('/:deviceId/status', async (req, res) => {
     const updates = {};
 
     if (req.body.batteryLevel !== undefined) {
-      updates.batteryLevel = req.body.batteryLevel;
+      updates.battery_level = req.body.batteryLevel;
     }
     if (req.body.networkStatus !== undefined) {
-      updates.networkStatus = req.body.networkStatus;
+      updates.network_status = req.body.networkStatus;
     }
     if (req.body.location !== undefined) {
       updates.location = req.body.location;
     }
 
-    updates.lastSeen = new Date().toISOString();
+    updates.last_seen = new Date().toISOString();
 
-    const result = await updateDeviceStatus(deviceId, updates);
-
-    if (result === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Device not found'
+    // Update device status using localDB
+    if (req.body.location && req.body.location.lat && req.body.location.lng) {
+      const result = await localDB.updateDeviceLocation(deviceId, req.body.location);
+      
+      res.json({
+        success: true,
+        message: 'Device status updated',
+        data: result
+      });
+    } else {
+      const result = await localDB.updateDeviceStatus(deviceId, updates);
+      res.json({
+        success: true,
+        message: 'Device status updated',
+        data: result
       });
     }
-
-    res.json({
-      success: true,
-      message: 'Device status updated',
-      updates
-    });
 
   } catch (error) {
     console.error('❌ Error updating device status:', error);
@@ -191,17 +183,88 @@ router.put('/:deviceId/status', async (req, res) => {
   }
 });
 
+// GET /api/devices/:deviceId - Get device by ID
+router.get('/:deviceId', async (req, res) => {
+  try {
+    const device = await localDB.getDeviceById(req.params.deviceId);
+    if (!device) {
+      return res.status(404).json({
+        success: false,
+        message: 'Device not found'
+      });
+    }
+    res.json({
+      success: true,
+      data: device
+    });
+  } catch (error) {
+    console.error('❌ Get device error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch device',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/devices/zone/:zoneId - Get devices by zone
+router.get('/zone/:zoneId', async (req, res) => {
+  try {
+    const devices = await localDB.getDevicesByZone(req.params.zoneId);
+    res.json({
+      success: true,
+      data: devices,
+      count: devices.length
+    });
+  } catch (error) {
+    console.error('❌ Get devices by zone error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch devices',
+      error: error.message
+    });
+  }
+});
+
+// PUT /api/devices/:deviceId/location - Update device location
+router.put('/:deviceId/location', async (req, res) => {
+  try {
+    const { location } = req.body;
+    
+    if (!location || !location.lat || !location.lng) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid location data. lat and lng are required.'
+      });
+    }
+    
+    const device = await localDB.updateDeviceLocation(req.params.deviceId, location);
+    res.json({
+      success: true,
+      message: 'Location updated successfully',
+      data: device
+    });
+  } catch (error) {
+    console.error('❌ Location update error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update location',
+      error: error.message
+    });
+  }
+});
+
 // POST /api/devices/:deviceId/heartbeat - Device heartbeat
 router.post('/:deviceId/heartbeat', async (req, res) => {
   try {
     const { deviceId } = req.params;
     const { batteryLevel, networkStatus, location } = req.body;
 
-    await updateDeviceStatus(deviceId, {
-      batteryLevel,
-      networkStatus: networkStatus || 'online',
+    await localDB.updateDeviceStatus(deviceId, {
+      battery_level: batteryLevel,
+      network_status: networkStatus || 'online',
       location,
-      lastSeen: new Date().toISOString()
+      last_seen: new Date().toISOString()
     });
 
     res.json({

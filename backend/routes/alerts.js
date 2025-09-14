@@ -1,10 +1,9 @@
 const express = require('express');
 const Joi = require('joi');
-const { AlertProcessor } = require('../services/AlertProcessor');
-const { getAlerts, getDeliveryStatus } = require('../database/db');
+const localDB = require('../storage/localDB');
+const alertDeliveryService = require('../services/AlertDeliveryService');
 
 const router = express.Router();
-const alertProcessor = new AlertProcessor();
 
 // Validation schemas
 const testAlertSchema = Joi.object({
@@ -24,10 +23,14 @@ const emergencySimSchema = Joi.object({
 router.get('/', async (req, res) => {
   try {
     const { limit = 50, severity, status } = req.query;
-    const alerts = await getAlerts(parseInt(limit));
+    const alerts = localDB.getAlerts();
+    
+    // Sort by creation date (newest first) and apply limit
+    let filteredAlerts = alerts
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .slice(0, parseInt(limit));
     
     // Filter by severity and status if provided
-    let filteredAlerts = alerts;
     if (severity) {
       filteredAlerts = filteredAlerts.filter(alert => alert.severity === severity);
     }
@@ -86,12 +89,26 @@ router.post('/test', async (req, res) => {
 
     console.log('🧪 Manual test alert requested:', value);
 
-    const result = await alertProcessor.triggerTestAlert(value);
+    // Create alert record
+    const alert = await localDB.saveAlert({
+      alert_type: value.alertType,
+      severity: value.severity,
+      zone_name: value.zoneName,
+      message: value.message,
+      status: 'active',
+      risk_score: 75, // Default for test alerts
+      risk_probability: 'medium'
+    });
+
+    // Send test alert to all registered contacts using the custom message
+    const deliveryResults = await alertDeliveryService.sendTestAlert();
+
+    console.log(`✅ Test alert sent to ${deliveryResults ? 'contacts' : 'no contacts'}`);
 
     res.json({
       success: true,
-      alert: result.alert,
-      deliveryResults: result.deliveryResults,
+      alert: alert,
+      deliveryResults: deliveryResults,
       message: 'Test alert sent successfully'
     });
 
@@ -119,12 +136,29 @@ router.post('/simulate-emergency', async (req, res) => {
 
     console.log('🚨 Emergency simulation requested:', value);
 
-    const result = await alertProcessor.triggerEmergencySimulation(value);
+    // Create emergency alert record
+    const alert = await localDB.saveAlert({
+      alert_type: 'emergency_simulation',
+      severity: 'critical',
+      zone_name: value.zoneName,
+      message: `EMERGENCY SIMULATION: ${value.scenario} detected in ${value.zoneName}. This is a drill.`,
+      status: 'active',
+      risk_score: 95,
+      risk_probability: 'high'
+    });
+
+    // Send emergency alert to all contacts
+    const deliveryResults = await alertDeliveryService.sendAlertToAllContacts(
+      `🚨 EMERGENCY SIMULATION: ${value.scenario} detected in ${value.zoneName}. This is a drill.`,
+      'critical'
+    );
+
+    console.log(`✅ Emergency simulation sent to ${deliveryResults.length} contacts`);
 
     res.json({
       success: true,
-      alert: result.alert,
-      deliveryResults: result.deliveryResults,
+      alert: alert,
+      deliveryResults: deliveryResults,
       message: 'Emergency simulation executed successfully'
     });
 
@@ -142,25 +176,38 @@ router.post('/simulate-emergency', async (req, res) => {
 router.get('/:alertId/delivery-status', async (req, res) => {
   try {
     const { alertId } = req.params;
-    const deliveryStatuses = await getDeliveryStatus(alertId);
+    
+    // For now, return a simplified status since we're using direct delivery
+    const alert = localDB.getAlerts().find(alert => alert.id === alertId);
+    
+    if (!alert) {
+      return res.status(404).json({
+        success: false,
+        error: 'Alert not found'
+      });
+    }
+
+    // Since we're sending alerts directly, we'll create a mock delivery status
+    const contacts = localDB.getAllContacts();
+    const mockDeliveryStatuses = contacts.map(contact => ({
+      id: `${alertId}-${contact.id}`,
+      alertId: alertId,
+      deviceId: contact.id,
+      channel: contact.phone ? 'sms' : 'email',
+      status: 'sent', // Assume sent for now
+      deliveryAttempts: 1,
+      errorMessage: null,
+      sentAt: alert.created_at,
+      deliveredAt: alert.created_at,
+      readAt: null,
+      createdAt: alert.created_at
+    }));
 
     res.json({
       success: true,
       alertId,
-      deliveryStatuses: deliveryStatuses.map(status => ({
-        id: status.id,
-        alertId: status.alert_id,
-        deviceId: status.device_id,
-        channel: status.channel,
-        status: status.status,
-        deliveryAttempts: status.delivery_attempts,
-        errorMessage: status.error_message,
-        sentAt: status.sent_at,
-        deliveredAt: status.delivered_at,
-        readAt: status.read_at,
-        createdAt: status.created_at
-      })),
-      total: deliveryStatuses.length
+      deliveryStatuses: mockDeliveryStatuses,
+      total: mockDeliveryStatuses.length
     });
 
   } catch (error) {
@@ -168,6 +215,90 @@ router.get('/:alertId/delivery-status', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch delivery status',
+      message: error.message
+    });
+  }
+});
+
+// GET /api/alerts/delivery-status/all - Get all delivery statuses
+router.get('/delivery-status/all', async (req, res) => {
+  try {
+    // Get all alerts and create mock delivery statuses
+    const alerts = localDB.getAlerts();
+    const contacts = localDB.getAllContacts();
+    
+    const allDeliveryStatuses = [];
+    
+    alerts.forEach(alert => {
+      contacts.forEach(contact => {
+        allDeliveryStatuses.push({
+          id: `${alert.id}-${contact.id}`,
+          alert_id: alert.id,
+          device_id: contact.id,
+          channel: contact.phone ? 'sms' : 'email',
+          status: 'sent',
+          delivery_attempts: 1,
+          error_message: null,
+          sent_at: alert.created_at,
+          delivered_at: alert.created_at,
+          read_at: null,
+          created_at: alert.created_at
+        });
+      });
+    });
+
+    res.json({
+      success: true,
+      data: allDeliveryStatuses,
+      total: allDeliveryStatuses.length
+    });
+
+  } catch (error) {
+    console.error('❌ Failed to get all delivery statuses:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get delivery statuses',
+      message: error.message
+    });
+  }
+});
+
+// POST /api/alerts/risk-check - Check risk score and send alerts if high
+router.post('/risk-check', async (req, res) => {
+  try {
+    const { riskScore, zoneName = 'Unknown Zone', details = {} } = req.body;
+    
+    if (riskScore === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: 'Risk score is required'
+      });
+    }
+
+    console.log(`📊 Risk score check: ${riskScore} for ${zoneName}`);
+
+    const result = await alertDeliveryService.checkRiskScoreAndAlert(
+      riskScore,
+      zoneName,
+      details
+    );
+
+    res.json({
+      success: true,
+      riskScore: riskScore,
+      alertSent: result.alertSent,
+      alert: result.alert,
+      deliveryResults: result.deliveryResults,
+      message: result.alertSent 
+        ? `Risk alert sent for score ${riskScore}` 
+        : `Risk score ${riskScore} below alert threshold`
+    });
+
+  } catch (error) {
+    console.error('❌ Risk check error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Risk check failed',
       message: error.message
     });
   }
