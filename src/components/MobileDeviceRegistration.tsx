@@ -2,13 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Smartphone, 
-  Shield, 
   UserPlus, 
   Bell, 
   MessageSquare, 
   Mail, 
   MapPin, 
-  Battery, 
   Wifi,
   X,
   Check,
@@ -26,7 +24,6 @@ export const MobileDeviceRegistration: React.FC<MobileDeviceRegistrationProps> =
 }) => {
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
   const [registeredDevices, setRegisteredDevices] = useState<Device[]>([]);
-  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   
@@ -277,13 +274,13 @@ export const MobileDeviceRegistration: React.FC<MobileDeviceRegistrationProps> =
 
             <div className="flex items-center space-x-2 mb-3">
               {device.preferences?.enablePushNotifications && (
-                <Bell className="h-4 w-4 text-blue-500" title="Push Notifications" />
+                <Bell className="h-4 w-4 text-blue-500" />
               )}
               {device.preferences?.enableSMS && (
-                <MessageSquare className="h-4 w-4 text-green-500" title="SMS" />
+                <MessageSquare className="h-4 w-4 text-green-500" />
               )}
               {device.preferences?.enableEmail && (
-                <Mail className="h-4 w-4 text-purple-500" title="Email" />
+                <Mail className="h-4 w-4 text-purple-500" />
               )}
             </div>
 
