@@ -34,3 +34,6 @@ backend/.env.local
 backend/.env.development.local
 backend/.env.test.local
 backend/.env.production.local
+
+# Legacy local folder (repo root is the app on `main`)
+rockfall-dashboard/
